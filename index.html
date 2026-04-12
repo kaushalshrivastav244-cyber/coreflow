@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoreFlow AI</title>
+  <meta name="description" content="CoreFlow AI is a sleek desktop AI assistant with a premium interface, local intelligence, and a clean workflow-first design." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <style>
+    :root{
+      --bg:#090d14;
+      --bg2:#0d1320;
+      --panel:rgba(16, 24, 38, 0.72);
+      --panel-2:rgba(255,255,255,0.04);
+      --line:rgba(255,255,255,0.08);
+      --text:#f5f7fb;
+      --muted:#96a2b8;
+      --blue:#58a1ff;
+      --blue-2:#2c7cff;
+      --maroon:#8b1e3f;
+      --shadow:0 24px 60px rgba(0,0,0,0.34);
+      --radius:26px;
+      --max:1180px;
+    }
+
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      font-family:"Inter",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 15% 15%, rgba(88,161,255,0.15), transparent 25%),
+        radial-gradient(circle at 85% 10%, rgba(139,30,63,0.14), transparent 22%),
+        radial-gradient(circle at 50% 100%, rgba(88,161,255,0.1), transparent 28%),
+        linear-gradient(180deg, #080c13 0%, #0a1018 55%, #090d14 100%);
+      overflow-x:hidden;
+    }
+
+    .bg-orb{
+      position:fixed;
+      border-radius:999px;
+      filter:blur(80px);
+      opacity:.24;
+      z-index:0;
+      pointer-events:none;
+      animation:float 11s ease-in-out infinite;
+    }
+
+    .orb-1{
+      width:260px;
+      height:260px;
+      background:#2f7eff;
+      left:-60px;
+      top:80px;
+    }
+
+    .orb-2{
+      width:280px;
+      height:280px;
+      background:#8b1e3f;
+      right:-80px;
+      top:320px;
+      animation-delay:1.6s;
+    }
+
+    .orb-3{
+      width:220px;
+      height:220px;
+      background:#316dff;
+      left:40%;
+      bottom:-60px;
+      animation-delay:3s;
+    }
+
+    @keyframes float{
+      0%,100%{transform:translateY(0) translateX(0) scale(1);}
+      50%{transform:translateY(-18px) translateX(14px) scale(1.04);}
+    }
+
+    .wrap{
+      width:min(100%, var(--max));
+      margin:auto;
+      padding:0 22px;
+      position:relative;
+      z-index:2;
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:100;
+      backdrop-filter:blur(18px);
+      background:rgba(7,11,17,0.56);
+      border-bottom:1px solid rgba(255,255,255,0.05);
+    }
+
+    .nav{
+      width:min(100%, var(--max));
+      margin:auto;
+      padding:16px 22px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-decoration:none;
+      color:var(--text);
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+
+    .brand-badge{
+      width:40px;
+      height:40px;
+      border-radius:15px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg, rgba(88,161,255,0.2), rgba(139,30,63,0.18));
+      border:1px solid rgba(255,255,255,0.08);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .brand-badge i{
+      color:#dbe9ff;
+      font-size:15px;
+    }
+
+    .nav-links{
+      display:flex;
+      gap:22px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .nav-links a{
+      text-decoration:none;
+      color:var(--muted);
+      font-size:14px;
+      transition:.25s ease;
+    }
+
+    .nav-links a:hover{
+      color:var(--text);
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      border:none;
+      text-decoration:none;
+      border-radius:18px;
+      padding:14px 20px;
+      font-weight:700;
+      font-size:15px;
+      transition:.28s ease;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+
+    .btn-primary{
+      color:white;
+      background:linear-gradient(135deg, var(--blue), var(--blue-2));
+      box-shadow:0 16px 30px rgba(44,124,255,0.28);
+    }
+
+    .btn-primary:hover{
+      transform:translateY(-2px);
+      box-shadow:0 20px 36px rgba(44,124,255,0.34);
+    }
+
+    .btn-secondary{
+      color:var(--text);
+      background:rgba(255,255,255,0.03);
+      border:1px solid var(--line);
+    }
+
+    .btn-secondary:hover{
+      transform:translateY(-2px);
+      background:rgba(255,255,255,0.05);
+    }
+
+    .hero{
+      padding:78px 0 46px;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.06fr .94fr;
+      gap:28px;
+      align-items:center;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      margin-bottom:18px;
+      color:#cfe1ff;
+      background:rgba(88,161,255,0.08);
+      border:1px solid rgba(88,161,255,0.18);
+      font-size:13px;
+      font-weight:600;
+    }
+
+    h1{
+      font-size:clamp(2.5rem,5vw,5.4rem);
+      line-height:.94;
+      letter-spacing:-.05em;
+      margin-bottom:18px;
+    }
+
+    h1 span{
+      background:linear-gradient(135deg, #ffffff, #8cc0ff 52%, #ebb7c8 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+
+    .hero-copy{
+      color:var(--muted);
+      font-size:1.04rem;
+      line-height:1.8;
+      max-width:650px;
+      margin-bottom:28px;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-bottom:28px;
+    }
+
+    .hero-stats{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+    }
+
+    .stat{
+      padding:14px 16px;
+      border-radius:18px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid var(--line);
+      min-width:150px;
+    }
+
+    .stat strong{
+      display:block;
+      margin-bottom:4px;
+      color:var(--text);
+      font-size:15px;
+    }
+
+    .stat span{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .hero-card{
+      position:relative;
+      min-height:560px;
+      border-radius:30px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.08);
+      background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(18px);
+    }
+
+    .hero-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at top right, rgba(88,161,255,0.16), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(139,30,63,0.14), transparent 24%);
+    }
+
+    .app-preview{
+      position:relative;
+      display:grid;
+      grid-template-columns:88px 1fr;
+      min-height:560px;
+    }
+
+    .preview-sidebar{
+      border-right:1px solid rgba(255,255,255,0.06);
+      padding:18px 12px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
+      background:rgba(255,255,255,0.015);
+    }
+
+    .preview-icon{
+      width:46px;
+      height:46px;
+      border-radius:15px;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.08);
+      color:#dbe7fb;
+      transition:.28s ease;
+      opacity:0;
+      transform:translateY(16px) scale(.88);
+      animation:iconPop .7s ease forwards;
+    }
+
+    .preview-icon:nth-child(1){animation-delay:.05s;}
+    .preview-icon:nth-child(2){animation-delay:.14s;}
+    .preview-icon:nth-child(3){animation-delay:.23s;}
+    .preview-icon:nth-child(4){animation-delay:.32s;}
+    .preview-icon:nth-child(5){animation-delay:.41s;}
+
+    .preview-icon:hover{
+      transform:translateY(-4px) scale(1.04);
+      border-color:rgba(88,161,255,0.35);
+      box-shadow:0 12px 26px rgba(0,0,0,0.28);
+      color:#fff;
+    }
+
+    @keyframes iconPop{
+      to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+      }
+    }
+
+    .preview-main{
+      padding:22px;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+
+    .preview-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    .preview-title h3{
+      font-size:1.2rem;
+      margin-bottom:6px;
+    }
+
+    .preview-title p{
+      color:var(--muted);
+      font-size:.93rem;
+    }
+
+    .mini-pill{
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(88,161,255,0.08);
+      border:1px solid rgba(88,161,255,0.18);
+      color:#d0e4ff;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .messages{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:4px;
+    }
+
+    .bubble{
+      max-width:88%;
+      padding:14px 16px;
+      border-radius:18px;
+      font-size:14px;
+      line-height:1.65;
+      border:1px solid rgba(255,255,255,0.08);
+      animation:fadeUp .55s ease both;
+    }
+
+    .bubble.assistant{
+      background:rgba(255,255,255,0.035);
+    }
+
+    .bubble.user{
+      align-self:flex-end;
+      background:linear-gradient(135deg, rgba(88,161,255,0.18), rgba(88,161,255,0.08));
+    }
+
+    @keyframes fadeUp{
+      from{opacity:0; transform:translateY(12px);}
+      to{opacity:1; transform:translateY(0);}
+    }
+
+    .preview-input{
+      margin-top:auto;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px;
+      border-radius:20px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+    }
+
+    .preview-input span{
+      flex:1;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .send-chip{
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      color:white;
+      background:linear-gradient(135deg, var(--blue), var(--blue-2));
+      box-shadow:0 12px 24px rgba(44,124,255,0.28);
+    }
+
+    section{
+      padding:34px 0;
+    }
+
+    .section-top{
+      margin-bottom:22px;
+    }
+
+    .section-top h2{
+      font-size:clamp(1.8rem,3vw,3rem);
+      letter-spacing:-.03em;
+      margin-bottom:10px;
+    }
+
+    .section-top p{
+      color:var(--muted);
+      line-height:1.8;
+      max-width:680px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+    }
+
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:22px;
+      backdrop-filter:blur(16px);
+      box-shadow:var(--shadow);
+      transition:.3s ease;
+    }
+
+    .card:hover{
+      transform:translateY(-6px);
+      border-color:rgba(88,161,255,0.24);
+    }
+
+    .card-icon{
+      width:54px;
+      height:54px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      margin-bottom:16px;
+      background:linear-gradient(135deg, rgba(88,161,255,0.16), rgba(139,30,63,0.12));
+      border:1px solid rgba(255,255,255,0.08);
+      color:#dbe8ff;
+      font-size:1.08rem;
+      transition:.28s ease;
+    }
+
+    .card:hover .card-icon{
+      transform:scale(1.08) translateY(-2px);
+      color:#fff;
+      box-shadow:0 16px 30px rgba(0,0,0,0.25);
+    }
+
+    .card h3{
+      font-size:1.08rem;
+      margin-bottom:10px;
+    }
+
+    .card p{
+      color:var(--muted);
+      line-height:1.75;
+      font-size:.96rem;
+    }
+
+    .showcase{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+    }
+
+    .show{
+      min-height:320px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .show.large{
+      min-height:392px;
+    }
+
+    .screen{
+      position:absolute;
+      inset:18px;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015)),
+        #0b1320;
+      overflow:hidden;
+    }
+
+    .screen-top{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+    }
+
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.18);
+    }
+
+    .screen-body{
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+
+    .line{
+      height:12px;
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.11), rgba(255,255,255,0.04));
+    }
+
+    .short{width:42%}
+    .mid{width:68%}
+    .long{width:88%}
+
+    .pricing{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+    }
+
+    .price{
+      font-size:2.15rem;
+      font-weight:800;
+      letter-spacing:-.04em;
+      margin:16px 0 10px;
+    }
+
+    .muted{
+      color:var(--muted);
+      line-height:1.75;
+      margin-bottom:20px;
+    }
+
+    .check-list{
+      display:grid;
+      gap:12px;
+      margin-bottom:24px;
+    }
+
+    .check-list div{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      color:var(--muted);
+    }
+
+    .check-list i{
+      color:#c4ddff;
+    }
+
+    .cta{
+      padding:28px 0 70px;
+    }
+
+    .cta-box{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      flex-wrap:wrap;
+      padding:28px;
+      border-radius:28px;
+      background:
+        linear-gradient(135deg, rgba(88,161,255,0.12), rgba(139,30,63,0.10)),
+        rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+      box-shadow:var(--shadow);
+    }
+
+    .cta-box h3{
+      font-size:clamp(1.4rem,3vw,2.2rem);
+      margin-bottom:8px;
+    }
+
+    .cta-box p{
+      color:var(--muted);
+      line-height:1.8;
+      max-width:650px;
+    }
+
+    footer{
+      border-top:1px solid rgba(255,255,255,0.06);
+      padding:22px 0 34px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .foot{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .reveal{
+      opacity:0;
+      transform:translateY(26px);
+      transition:.65s ease;
+    }
+
+    .reveal.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    @media (max-width: 1024px){
+      .hero-grid,
+      .grid,
+      .showcase,
+      .pricing{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width: 700px){
+      .nav{
+        padding:14px 16px;
+      }
+
+      .nav-links{
+        display:none;
+      }
+
+      .hero{
+        padding-top:56px;
+      }
+
+      .hero-actions{
+        flex-direction:column;
+        align-items:stretch;
+      }
+
+      .btn{
+        width:100%;
+      }
+
+      .app-preview{
+        grid-template-columns:72px 1fr;
+      }
+
+      .preview-sidebar{
+        padding:16px 10px;
+      }
+
+      .preview-icon{
+        width:42px;
+        height:42px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <header>
+    <nav class="nav">
+      <a href="#" class="brand">
+        <span class="brand-badge"><i class="fa-solid fa-wave-square"></i></span>
+        <span>CoreFlow AI</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#preview">Preview</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#download">Download</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="reveal show">
+          <div class="eyebrow">
+            <i class="fa-solid fa-sparkles"></i>
+            Premium desktop AI assistant
+          </div>
+
+          <h1>Meet <span>CoreFlow AI</span></h1>
+
+          <p class="hero-copy">
+            A sleek desktop AI assistant built for clean workflows, local intelligence,
+            elegant design, and real product energy. Not another clunky chatbot tab.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#download" class="btn btn-primary">
+              <i class="fa-solid fa-download"></i>
+              Download for Windows
+            </a>
+
+            <a href="#preview" class="btn btn-secondary">
+              <i class="fa-regular fa-eye"></i>
+              View Preview
+            </a>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat">
+              <strong>Local-first</strong>
+              <span>Built for desktop speed</span>
+            </div>
+
+            <div class="stat">
+              <strong>Elegant UI</strong>
+              <span>Thin, sharp, premium feel</span>
+            </div>
+
+            <div class="stat">
+              <strong>Customizable</strong>
+              <span>Themes, chats, identity</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-card reveal">
+          <div class="app-preview">
+            <aside class="preview-sidebar">
+              <div class="preview-icon"><i class="fa-solid fa-plus"></i></div>
+              <div class="preview-icon"><i class="fa-regular fa-message"></i></div>
+              <div class="preview-icon"><i class="fa-solid fa-sliders"></i></div>
+              <div class="preview-icon"><i class="fa-solid fa-bolt"></i></div>
+              <div class="preview-icon"><i class="fa-regular fa-user"></i></div>
+            </aside>
+
+            <div class="preview-main">
+              <div class="preview-top">
+                <div class="preview-title">
+                  <h3>CoreFlow AI</h3>
+                  <p>Good evening, Kaushal. Systems online.</p>
+                </div>
+                <div class="mini-pill">Qwen 3 · Local Brain</div>
+              </div>
+
+              <div class="messages">
+                <div class="bubble assistant">
+                  I’m ready. Ask me anything, continue a workflow, or launch your next idea.
+                </div>
+
+                <div class="bubble user">
+                  Who created you?
+                </div>
+
+                <div class="bubble assistant">
+                  I was created by Kaushal Shrivastava.
+                </div>
+              </div>
+
+              <div class="preview-input">
+                <span>Message CoreFlow AI...</span>
+                <div class="send-chip"><i class="fa-solid fa-arrow-up"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="section-top reveal">
+        <h2>Built to feel like a real product</h2>
+        <p>
+          CoreFlow AI is designed like software you actually want to install. Smooth layout,
+          clean interface, local model support, personality control, and a strong desktop presence.
+        </p>
+      </div>
+
+      <div class="grid">
+        <article class="card reveal">
+          <div class="card-icon"><i class="fa-solid fa-brain"></i></div>
+          <h3>Local AI brain</h3>
+          <p>
+            Connect it to Ollama and run your own local model without turning the app into a confusing lab experiment.
+          </p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card-icon"><i class="fa-regular fa-window-maximize"></i></div>
+          <h3>Premium desktop feel</h3>
+          <p>
+            Clean panels, slim controls, elegant spacing, and a layout that feels polished instead of stitched together.
+          </p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card-icon"><i class="fa-solid fa-palette"></i></div>
+          <h3>Theme customization</h3>
+          <p>
+            Dark, light, blue, maroon, black, and mixed combinations that make the app feel personal and premium.
+          </p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card-icon"><i class="fa-regular fa-message"></i></div>
+          <h3>Chat history sidebar</h3>
+          <p>
+            A modern conversation layout with saved chats on the left and a profile area that feels intentional.
+          </p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <h3>Smooth visual motion</h3>
+          <p>
+            Icons pop, sections reveal, buttons lift, and the whole page moves with restraint instead of chaos.
+          </p>
+        </article>
+
+        <article class="card reveal">
+          <div class="card-icon"><i class="fa-solid fa-rocket"></i></div>
+          <h3>Launch-ready</h3>
+          <p>
+            Made to become a downloadable app with a landing page, release flow, and a path toward paid distribution.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="preview">
+      <div class="section-top reveal">
+        <h2>Preview section</h2>
+        <p>
+          Replace these placeholders with real screenshots later. The layout is already ready to look like an actual software landing page.
+        </p>
+      </div>
+
+      <div class="showcase">
+        <div class="card show large reveal">
+          <div class="screen">
+            <div class="screen-top">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <div class="screen-body">
+              <div class="line short"></div>
+              <div class="line long"></div>
+              <div class="line mid"></div>
+              <div class="line long"></div>
+              <div class="line short"></div>
+              <div class="line mid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; gap:18px;">
+          <div class="card show reveal">
+            <div class="screen">
+              <div class="screen-top">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+              <div class="screen-body">
+                <div class="line short"></div>
+                <div class="line mid"></div>
+                <div class="line long"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card show reveal">
+            <div class="screen">
+              <div class="screen-top">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+              <div class="screen-body">
+                <div class="line mid"></div>
+                <div class="line long"></div>
+                <div class="line short"></div>
+                <div class="line long"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="section-top reveal">
+        <h2>Launch free, then monetize</h2>
+        <p>
+          Start with a free beta to pull users in. Then release a Pro version with extra features, better onboarding, and premium updates.
+        </p>
+      </div>
+
+      <div class="pricing">
+        <article class="card reveal">
+          <div class="card-icon"><i class="fa-regular fa-star"></i></div>
+          <h3>Beta</h3>
+          <div class="price">Free</div>
+          <p class="muted">
+            Best for the first launch. Collect users, improve the product, and build credibility before the paid version drops.
+          </p>
+          <div class="check-list">
+            <div><i class="fa-solid fa-check"></i> Public Windows download</div>
+            <div><i class="fa-solid fa-check"></i> Early user feedback</div>
+            <div><i class="fa-solid fa-check"></i> Instagram traffic funnel</div>
+            <div><i class="fa-solid fa-check"></i> Brand building</div>
+          </div>
+          <a href="#download" class="btn btn-secondary">Start with Beta</a>
+        </article>
+
+        <article class="card reveal">
+          <div class="card-icon"><i class="fa-solid fa-crown"></i></div>
+          <h3>Pro</h3>
+          <div class="price">$9 <span style="font-size:1rem;color:var(--muted);font-weight:600;">one-time</span></div>
+          <p class="muted">
+            Add premium themes, smoother onboarding, more polished features, and future tools once the base app proves itself.
+          </p>
+          <div class="check-list">
+            <div><i class="fa-solid fa-check"></i> Premium builds</div>
+            <div><i class="fa-solid fa-check"></i> Better visual packs</div>
+            <div><i class="fa-solid fa-check"></i> Future voice and tools</div>
+            <div><i class="fa-solid fa-check"></i> Stronger product identity</div>
+          </div>
+          <a href="#download" class="btn btn-primary">Sell the upgrade</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="download" class="cta">
+      <div class="cta-box reveal">
+        <div>
+          <h3>Download CoreFlow AI</h3>
+          <p>
+            Replace the button links below with your real GitHub Release asset, direct download file, or store page.
+          </p>
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="#" class="btn btn-primary">
+            <i class="fa-solid fa-download"></i>
+            Download .exe
+          </a>
+
+          <a href="#" class="btn btn-secondary">
+            <i class="fa-brands fa-github"></i>
+            View Release
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap foot">
+      <span>© 2026 CoreFlow AI</span>
+      <span>Built by Kaushal Shrivastava</span>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("show");
+        }
+      });
+    }, { threshold: 0.14 });
+
+    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+  </script>
+</body>
+</html>
