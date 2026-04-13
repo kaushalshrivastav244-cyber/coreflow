@@ -397,7 +397,7 @@
         <a href="#features" class="nav-hide">Features</a>
         <a href="#preview"  class="nav-hide">Preview</a>
         <a href="#pricing"  class="nav-hide">Pricing</a>
-        <a href="#download" class="nav-cta">Download</a>
+        <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="nav-cta">Download</a>
       </div>
     </nav>
   </header>
@@ -417,7 +417,7 @@
               how their tools feel. Fast, local, and built like premium software.
             </p>
             <div class="hero-actions">
-              <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="btn btn-primary" download>
+              <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="btn btn-primary">
                 <i class="fa-solid fa-arrow-down"></i> Download for Windows
               </a>
               <a href="#preview" class="btn btn-ghost">
@@ -798,12 +798,12 @@
             <p class="plan-note">No card needed. No expiry.</p>
             <div class="plan-divider"></div>
             <ul class="plan-features">
-              <li><i class="fa-solid fa-check"></i> Public Windows download</li>
+              <li><i class="fa-solid fa-check"></i> Public Windows</li>
               <li><i class="fa-solid fa-check"></i> Full chat &amp; history</li>
               <li><i class="fa-solid fa-check"></i> Local model support</li>
               <li><i class="fa-solid fa-check"></i> Community access</li>
             </ul>
-            <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="btn btn-ghost" download>Download Beta</a>
+            <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="btn btn-ghost">Download Beta</a>
           </article>
           <article class="plan featured reveal">
             <div class="plan-badge">Pro</div>
@@ -817,7 +817,7 @@
               <li><i class="fa-solid fa-check"></i> Future voice &amp; tools</li>
               <li><i class="fa-solid fa-check"></i> All future Pro updates</li>
             </ul>
-            <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="btn btn-primary" download>Get Pro — $9</a>
+            <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="btn btn-primary">Get Pro — $9</a>
           </article>
         </div>
       </div>
@@ -832,7 +832,7 @@
             <p>Grab the Windows build, try it locally, and keep it. Replace the links below with your real GitHub Release or store page once you ship.</p>
           </div>
           <div class="cta-btns">
-            <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="btn btn-primary" download><i class="fa-solid fa-arrow-down"></i> Download .zip</a>
+            <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="btn btn-primary"><i class="fa-solid fa-arrow-down"></i> Download .zip</a>
             <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases" class="btn btn-ghost" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View on GitHub</a>
           </div>
         </div>
@@ -853,8 +853,12 @@
       entries.forEach(e => { if(e.isIntersecting) e.target.classList.add("show"); });
     },{ threshold:.1 });
     document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+    const ZIP = "https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip";
+    document.querySelectorAll("a").forEach(a => {
+      if(a.href === ZIP){ a.target = "_blank"; a.rel = "noopener noreferrer"; }
+    });
   </script>
 
 </body>
 </html>
-  
