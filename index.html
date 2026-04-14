@@ -11,6 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 
+  <!-- Razorpay SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
   <style>
     /* ─── Tokens ─────────────────────────────────────── */
     :root{
@@ -39,7 +42,6 @@
       overflow-x:hidden;
     }
 
-    /* subtle ambient glow — just two soft circles, very restrained */
     body::before{
       content:"";
       position:fixed; inset:0; z-index:0; pointer-events:none;
@@ -86,6 +88,7 @@
       font-size:13px; font-weight:600;
       text-decoration:none; transition:.22s ease;
       box-shadow:0 4px 16px rgba(79,143,255,.28);
+      cursor:pointer; border:none; font-family:"Figtree",sans-serif;
     }
     .nav-cta:hover{ background:var(--blue-d); transform:translateY(-1px); }
 
@@ -186,7 +189,6 @@
     .app-body{
       display:grid; grid-template-columns:52px 1fr;
     }
-    /* icon rail */
     .icon-rail{
       border-right:1px solid var(--border);
       padding:14px 0; display:flex; flex-direction:column;
@@ -209,7 +211,6 @@
     .rail-icon:hover{ color:var(--text); background:rgba(255,255,255,.04); }
     @keyframes popIn{ to{ opacity:1; transform:translateY(0); } }
 
-    /* chat pane */
     .chat-pane{ padding:16px 18px; display:flex; flex-direction:column; gap:12px; min-height:340px; }
     .chat-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:2px; }
     .chat-header h3{
@@ -312,11 +313,16 @@
     .ss-col{ display:grid; gap:14px; }
 
     /* ─── Pricing ───────────────────────────────────── */
-    .pricing-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:48px; }
+    /* Single-column centred layout — free tier removed */
+    .pricing-grid{
+      display:flex; justify-content:center;
+      margin-top:48px;
+    }
     .plan{
-      padding:30px 28px; border-radius:18px;
+      padding:38px 40px; border-radius:18px;
       border:1px solid var(--border); background:var(--surface);
-      transition:.25s ease; display:flex; flex-direction:column; gap:0;
+      transition:.25s ease; display:flex; flex-direction:column;
+      gap:0; width:100%; max-width:460px;
     }
     .plan:hover{ border-color:var(--border-h); }
     .plan.featured{
@@ -330,16 +336,39 @@
       border:1px solid rgba(79,143,255,.2); margin-bottom:14px; align-self:flex-start;
     }
     .plan h3{ font-size:1.05rem; font-weight:700; margin-bottom:4px; }
+
+    /* Price block — shows ₹149 large, dollar conversion small */
     .plan-price{
       font-family:"Instrument Serif",serif;
-      font-size:2.6rem; line-height:1; margin:14px 0 6px; color:var(--text);
+      font-size:2.6rem; line-height:1; margin:14px 0 4px; color:var(--text);
     }
     .plan-price sub{ font-size:1rem; color:var(--muted); font-family:"Figtree",sans-serif; font-weight:500; }
+    .plan-usd{ font-size:12.5px; color:var(--dim); margin-bottom:6px; }
     .plan-note{ font-size:12.5px; color:var(--muted); margin-bottom:22px; }
     .plan-divider{ height:1px; background:var(--border); margin:18px 0; }
     .plan-features{ list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:26px; flex:1; }
     .plan-features li{ display:flex; align-items:center; gap:10px; font-size:13px; color:var(--muted); }
     .plan-features li i{ color:var(--blue); font-size:11px; width:14px; text-align:center; }
+
+    /* Pay button */
+    .btn-pay{
+      width:100%; justify-content:center; padding:13px 24px;
+      border-radius:12px; background:var(--blue); color:#fff;
+      box-shadow:0 6px 24px rgba(79,143,255,.32);
+      font-size:14px;
+    }
+    .btn-pay:hover{ background:var(--blue-d); transform:translateY(-2px); box-shadow:0 10px 32px rgba(79,143,255,.42); }
+
+    /* Trust badges under pay button */
+    .plan-trust{
+      display:flex; justify-content:center; gap:18px;
+      margin-top:16px; flex-wrap:wrap;
+    }
+    .plan-trust span{
+      display:flex; align-items:center; gap:6px;
+      font-size:11.5px; color:var(--dim);
+    }
+    .plan-trust i{ font-size:10px; color:rgba(79,143,255,.5); }
 
     /* ─── Download CTA ──────────────────────────────── */
     .cta-band{
@@ -372,7 +401,7 @@
 
     /* ─── Responsive ─────────────────────────────────── */
     @media(max-width:1024px){
-      .hero-inner, .feat-grid, .preview-grid, .pricing-grid{ grid-template-columns:1fr; }
+      .hero-inner, .feat-grid, .preview-grid{ grid-template-columns:1fr; }
       .feat-grid{ background:none; border:none; gap:10px; }
       .feat{ border-radius:14px; border:1px solid var(--border); }
     }
@@ -382,6 +411,7 @@
       h1{ font-size:2.6rem; }
       .cta-band{ padding:32px 24px; }
       .app-body{ grid-template-columns:44px 1fr; }
+      .plan{ padding:28px 22px; }
     }
   </style>
 </head>
@@ -397,7 +427,7 @@
         <a href="#features" class="nav-hide">Features</a>
         <a href="#preview"  class="nav-hide">Preview</a>
         <a href="#pricing"  class="nav-hide">Pricing</a>
-        <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="nav-cta">Download</a>
+        <button onclick="launchPayment()" class="nav-cta" id="nav-cta">Get Pro — ₹149</button>
       </div>
     </nav>
   </header>
@@ -417,9 +447,9 @@
               how their tools feel. Fast, local, and built like premium software.
             </p>
             <div class="hero-actions">
-              <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="btn btn-primary">
-                <i class="fa-solid fa-arrow-down"></i> Download for Windows
-              </a>
+              <button onclick="launchPayment()" class="btn btn-primary">
+                <i class="fa-solid fa-bolt"></i> Get CoreFlow Pro — ₹149
+              </button>
               <a href="#preview" class="btn btn-ghost">
                 <i class="fa-regular fa-eye"></i> See preview
               </a>
@@ -552,34 +582,21 @@
                   <stop offset="0%" stop-color="#2252d4" stop-opacity=".28"/><stop offset="100%" stop-color="#4f8fff" stop-opacity=".14"/>
                 </linearGradient>
               </defs>
-
-              <!-- bg -->
               <rect width="680" height="440" fill="url(#g-main)"/>
-              <!-- title bar -->
               <rect width="680" height="34" fill="#07090f"/>
               <rect y="33.5" width="680" height=".5" fill="#ffffff" fill-opacity=".06"/>
               <circle cx="16" cy="17" r="5" fill="#ff5f57" opacity=".8"/>
               <circle cx="30" cy="17" r="5" fill="#ffbd2e" opacity=".8"/>
               <circle cx="44" cy="17" r="5" fill="#28c840" opacity=".8"/>
               <text x="340" y="22" text-anchor="middle" font-family="Figtree,sans-serif" font-size="11.5" fill="#3a4a60" letter-spacing=".4">CoreFlow AI</text>
-
-              <!-- sidebar -->
               <rect x="0" y="34" width="190" height="406" fill="url(#g-sb)"/>
               <rect x="189.5" y="34" width=".5" height="406" fill="#ffffff" fill-opacity=".06"/>
-
-              <!-- new chat btn -->
               <rect x="10" y="46" width="170" height="30" rx="8" fill="#4f8fff" fill-opacity=".1" stroke="#4f8fff" stroke-opacity=".2" stroke-width="1"/>
               <text x="25" y="65" font-family="Figtree,sans-serif" font-size="12" fill="#7ab8ff" font-weight="600">＋  New Chat</text>
-
-              <!-- section label -->
               <text x="14" y="96" font-family="Figtree,sans-serif" font-size="9.5" fill="#273a54" font-weight="700" letter-spacing="1">RECENT</text>
-
-              <!-- active chat row -->
               <rect x="8" y="104" width="174" height="30" rx="8" fill="#4f8fff" fill-opacity=".09" stroke="#4f8fff" stroke-opacity=".18" stroke-width="1"/>
               <rect x="18" y="117" width="3" height="3" rx="1.5" fill="#4f8fff"/>
               <text x="28" y="123.5" font-family="Figtree,sans-serif" font-size="12" fill="#c0d8f8" font-weight="500">Who created you?</text>
-
-              <!-- other rows -->
               <rect x="18" y="147" width="3" height="3" rx="1.5" fill="#273a54"/>
               <text x="28" y="152.5" font-family="Figtree,sans-serif" font-size="12" fill="#3a4f6a">Write a Python script</text>
               <rect x="18" y="170" width="3" height="3" rx="1.5" fill="#273a54"/>
@@ -590,57 +607,36 @@
               <text x="28" y="221.5" font-family="Figtree,sans-serif" font-size="12" fill="#3a4f6a">Summarize this article</text>
               <rect x="18" y="239" width="3" height="3" rx="1.5" fill="#273a54"/>
               <text x="28" y="244.5" font-family="Figtree,sans-serif" font-size="12" fill="#3a4f6a">Refactor my codebase</text>
-
-              <!-- sidebar footer -->
               <rect y="406" width="190" height="34" fill="#07090f"/>
               <rect y="405.5" width="190" height=".5" fill="#ffffff" fill-opacity=".05"/>
               <circle cx="20" cy="423" r="9" fill="#0f1926" stroke="#ffffff" stroke-opacity=".08" stroke-width="1"/>
               <text x="20" y="426.5" text-anchor="middle" font-family="Figtree,sans-serif" font-size="10" fill="#5a7090" font-weight="700">K</text>
               <text x="36" y="419.5" font-family="Figtree,sans-serif" font-size="11.5" fill="#b0c4e0" font-weight="600">Kaushal</text>
               <text x="36" y="431" font-family="Figtree,sans-serif" font-size="10" fill="#2e4060">Pro · Local</text>
-
-              <!-- main chat area -->
-              <!-- chat top bar -->
               <rect x="190" y="34" width="490" height="44" fill="#08101a"/>
               <rect x="190" y="77.5" width="490" height=".5" fill="#ffffff" fill-opacity=".05"/>
               <text x="208" y="56" font-family="'Instrument Serif',serif" font-size="15" fill="#c8dcf8">CoreFlow AI</text>
               <text x="208" y="70" font-family="Figtree,sans-serif" font-size="11" fill="#2e4060">Good evening, Kaushal. Systems online.</text>
-              <!-- model pill -->
               <rect x="560" y="44" width="110" height="22" rx="11" fill="#4f8fff" fill-opacity=".08" stroke="#4f8fff" stroke-opacity=".2" stroke-width="1"/>
               <circle cx="572" cy="55" r="3.5" fill="#4ade80" opacity=".9"/>
               <text x="580" y="59" font-family="Figtree,sans-serif" font-size="10.5" fill="#90beff" font-weight="600">CF Engine · Local</text>
-
-              <!-- messages -->
-              <!-- AI 1 -->
               <rect x="205" y="90" width="305" height="44" rx="11" fill="#ffffff" fill-opacity=".025" stroke="#ffffff" stroke-opacity=".06" stroke-width="1"/>
               <text x="219" y="108.5" font-family="Figtree,sans-serif" font-size="12" fill="#6b7d99">I'm ready. Ask me anything, continue a</text>
               <text x="219" y="123.5" font-family="Figtree,sans-serif" font-size="12" fill="#6b7d99">workflow, or launch your next idea.</text>
-
-              <!-- User 1 -->
               <rect x="390" y="148" width="284" height="30" rx="11" fill="url(#g-user)" stroke="#4f8fff" stroke-opacity=".18" stroke-width="1"/>
               <text x="406" y="167" font-family="Figtree,sans-serif" font-size="12" fill="#b8d6ff">Who created you?</text>
-
-              <!-- AI 2 -->
               <rect x="205" y="192" width="280" height="30" rx="11" fill="#ffffff" fill-opacity=".025" stroke="#ffffff" stroke-opacity=".06" stroke-width="1"/>
               <text x="219" y="211" font-family="Figtree,sans-serif" font-size="12" fill="#6b7d99">I was created by Kaushal Shrivastava.</text>
-
-              <!-- User 2 -->
               <rect x="365" y="236" width="309" height="30" rx="11" fill="url(#g-user)" stroke="#4f8fff" stroke-opacity=".18" stroke-width="1"/>
               <text x="381" y="255" font-family="Figtree,sans-serif" font-size="12" fill="#b8d6ff">What can you help me with?</text>
-
-              <!-- AI 3 -->
               <rect x="205" y="280" width="388" height="62" rx="11" fill="#ffffff" fill-opacity=".025" stroke="#ffffff" stroke-opacity=".06" stroke-width="1"/>
               <text x="219" y="298.5" font-family="Figtree,sans-serif" font-size="12" fill="#6b7d99">Coding, writing, research, summarising docs,</text>
               <text x="219" y="313.5" font-family="Figtree,sans-serif" font-size="12" fill="#6b7d99">brainstorming ideas, and much more — all locally,</text>
               <text x="219" y="328.5" font-family="Figtree,sans-serif" font-size="12" fill="#6b7d99">privately, without sending data anywhere.</text>
-
-              <!-- input bar -->
               <rect x="204" y="364" width="462" height="38" rx="12" fill="#ffffff" fill-opacity=".025" stroke="#ffffff" stroke-opacity=".07" stroke-width="1"/>
               <text x="218" y="387" font-family="Figtree,sans-serif" font-size="12.5" fill="#2e4060">Message CoreFlow AI…</text>
               <rect x="618" y="371" width="36" height="24" rx="8" fill="url(#g-send)"/>
               <text x="636" y="387.5" text-anchor="middle" font-family="Figtree,sans-serif" font-size="12" fill="white">↑</text>
-
-              <!-- typing indicator row -->
               <circle cx="219" cy="408" r="3" fill="#4f8fff" opacity=".8"><animate attributeName="opacity" values=".8;.2;.8" dur="1.2s" repeatCount="indefinite"/></circle>
               <circle cx="229" cy="408" r="3" fill="#4f8fff" opacity=".5"><animate attributeName="opacity" values=".5;.9;.5" dur="1.2s" begin=".2s" repeatCount="indefinite"/></circle>
               <circle cx="239" cy="408" r="3" fill="#4f8fff" opacity=".3"><animate attributeName="opacity" values=".3;.8;.3" dur="1.2s" begin=".4s" repeatCount="indefinite"/></circle>
@@ -660,15 +656,12 @@
                   </linearGradient>
                 </defs>
                 <rect width="430" height="248" fill="#07090f"/>
-                <!-- title bar -->
                 <rect width="430" height="30" fill="#060810"/>
                 <rect y="29.5" width="430" height=".5" fill="#ffffff" fill-opacity=".06"/>
                 <circle cx="14" cy="15" r="4.5" fill="#ff5f57" opacity=".8"/>
                 <circle cx="27" cy="15" r="4.5" fill="#ffbd2e" opacity=".8"/>
                 <circle cx="40" cy="15" r="4.5" fill="#28c840" opacity=".8"/>
                 <text x="215" y="19.5" text-anchor="middle" font-family="Figtree,sans-serif" font-size="11" fill="#273a54" letter-spacing=".4">Settings — Appearance</text>
-
-                <!-- left sidebar -->
                 <rect x="0" y="30" width="120" height="218" fill="#060a14"/>
                 <rect x="119.5" y="30" width=".5" height="218" fill="#ffffff" fill-opacity=".06"/>
                 <rect x="6" y="40" width="108" height="27" rx="7" fill="#4f8fff" fill-opacity=".09" stroke="#4f8fff" stroke-opacity=".18" stroke-width="1"/>
@@ -677,12 +670,8 @@
                 <text x="16" y="110" font-family="Figtree,sans-serif" font-size="11.5" fill="#2e4060">🔒  Privacy</text>
                 <text x="16" y="133" font-family="Figtree,sans-serif" font-size="11.5" fill="#2e4060">⌨️  Shortcuts</text>
                 <text x="16" y="156" font-family="Figtree,sans-serif" font-size="11.5" fill="#2e4060">📦  About</text>
-
-                <!-- right panel -->
                 <text x="136" y="52" font-family="'Instrument Serif',serif" font-size="13.5" fill="#c0d8f0">Appearance</text>
-
                 <text x="136" y="73" font-family="Figtree,sans-serif" font-size="10" fill="#273a54" font-weight="700" letter-spacing=".9">ACCENT COLOUR</text>
-                <!-- theme chips -->
                 <rect x="136" y="80" width="54" height="22" rx="6" fill="url(#g-blue-pill)"/>
                 <text x="163" y="95.5" text-anchor="middle" font-family="Figtree,sans-serif" font-size="10.5" fill="white" font-weight="600">Blue</text>
                 <rect x="196" y="80" width="60" height="22" rx="6" fill="#7a1435"/>
@@ -691,22 +680,17 @@
                 <text x="289" y="95.5" text-anchor="middle" font-family="Figtree,sans-serif" font-size="10.5" fill="#3a4f6a" font-weight="600">Dark</text>
                 <rect x="322" y="80" width="54" height="22" rx="6" fill="#141e2e" stroke="#ffffff" stroke-opacity=".1" stroke-width="1"/>
                 <text x="349" y="95.5" text-anchor="middle" font-family="Figtree,sans-serif" font-size="10.5" fill="#3a4f6a" font-weight="600">Light</text>
-
                 <text x="136" y="123" font-family="Figtree,sans-serif" font-size="10" fill="#273a54" font-weight="700" letter-spacing=".9">FONT SIZE</text>
                 <rect x="136" y="130" width="270" height="5" rx="2.5" fill="#101828"/>
                 <rect x="136" y="130" width="140" height="5" rx="2.5" fill="#4f8fff" fill-opacity=".55"/>
                 <circle cx="276" cy="132.5" r="7" fill="#4f8fff" stroke="white" stroke-opacity=".15" stroke-width="1.5"/>
                 <text x="413" y="136" font-family="Figtree,sans-serif" font-size="10.5" fill="#3a4f6a">14px</text>
-
-                <!-- toggles -->
                 <text x="136" y="162" font-family="Figtree,sans-serif" font-size="12" fill="#6b7d99">Compact mode</text>
                 <rect x="350" y="151" width="34" height="18" rx="9" fill="#4f8fff" fill-opacity=".2" stroke="#4f8fff" stroke-opacity=".25" stroke-width="1"/>
                 <circle cx="373" cy="160" r="7" fill="#4f8fff"/>
-
                 <text x="136" y="190" font-family="Figtree,sans-serif" font-size="12" fill="#6b7d99">Show timestamps</text>
                 <rect x="350" y="179" width="34" height="18" rx="9" fill="#101828" stroke="#ffffff" stroke-opacity=".07" stroke-width="1"/>
                 <circle cx="360" cy="188" r="7" fill="#1e3050"/>
-
                 <text x="136" y="218" font-family="Figtree,sans-serif" font-size="12" fill="#6b7d99">Sidebar blur on focus</text>
                 <rect x="350" y="207" width="34" height="18" rx="9" fill="#4f8fff" fill-opacity=".2" stroke="#4f8fff" stroke-opacity=".25" stroke-width="1"/>
                 <circle cx="373" cy="216" r="7" fill="#4f8fff"/>
@@ -732,7 +716,6 @@
                 <circle cx="27" cy="15" r="4.5" fill="#ffbd2e" opacity=".8"/>
                 <circle cx="40" cy="15" r="4.5" fill="#28c840" opacity=".8"/>
                 <text x="215" y="19.5" text-anchor="middle" font-family="Figtree,sans-serif" font-size="11" fill="#273a54" letter-spacing=".4">Settings — AI Model</text>
-
                 <rect x="0" y="30" width="120" height="218" fill="#060a14"/>
                 <rect x="119.5" y="30" width=".5" height="218" fill="#ffffff" fill-opacity=".06"/>
                 <text x="16" y="57.5" font-family="Figtree,sans-serif" font-size="11.5" fill="#2e4060">🎨  Appearance</text>
@@ -741,11 +724,8 @@
                 <text x="16" y="107" font-family="Figtree,sans-serif" font-size="11.5" fill="#2e4060">🔒  Privacy</text>
                 <text x="16" y="130" font-family="Figtree,sans-serif" font-size="11.5" fill="#2e4060">⌨️  Shortcuts</text>
                 <text x="16" y="153" font-family="Figtree,sans-serif" font-size="11.5" fill="#2e4060">📦  About</text>
-
                 <text x="136" y="52" font-family="'Instrument Serif',serif" font-size="13.5" fill="#c0d8f0">AI Model</text>
                 <text x="136" y="67" font-family="Figtree,sans-serif" font-size="10.5" fill="#2e4060">Endpoint: localhost:11434 · connected</text>
-
-                <!-- active model row -->
                 <rect x="130" y="76" width="284" height="40" rx="9" fill="url(#g-active-row)" stroke="#4f8fff" stroke-opacity=".22" stroke-width="1"/>
                 <circle cx="148" cy="96" r="6.5" fill="#4f8fff" fill-opacity=".15" stroke="#4f8fff" stroke-opacity=".35" stroke-width="1"/>
                 <circle cx="148" cy="96" r="3" fill="#4f8fff"/>
@@ -753,20 +733,14 @@
                 <text x="162" y="106" font-family="Figtree,sans-serif" font-size="10.5" fill="#3a5070">CoreFlow Engine · Proprietary · Local</text>
                 <rect x="360" y="82" width="44" height="16" rx="4" fill="#4ade80" fill-opacity=".12"/>
                 <text x="382" y="93.5" text-anchor="middle" font-family="Figtree,sans-serif" font-size="9.5" fill="#4ade80" font-weight="700">LIVE</text>
-
-                <!-- row 2 -->
                 <rect x="130" y="122" width="284" height="36" rx="9" fill="#ffffff" fill-opacity=".02" stroke="#ffffff" stroke-opacity=".05" stroke-width="1"/>
                 <circle cx="148" cy="140" r="6.5" fill="#ffffff" fill-opacity=".04"/>
                 <text x="162" y="135.5" font-family="Figtree,sans-serif" font-size="12" fill="#3a5070">mistral:7b</text>
                 <text x="162" y="149" font-family="Figtree,sans-serif" font-size="10.5" fill="#273a54">Mistral · 7B · 4.1 GB</text>
-
-                <!-- row 3 -->
                 <rect x="130" y="164" width="284" height="36" rx="9" fill="#ffffff" fill-opacity=".02" stroke="#ffffff" stroke-opacity=".05" stroke-width="1"/>
                 <circle cx="148" cy="182" r="6.5" fill="#ffffff" fill-opacity=".04"/>
                 <text x="162" y="177.5" font-family="Figtree,sans-serif" font-size="12" fill="#3a5070">llama3:8b</text>
                 <text x="162" y="191" font-family="Figtree,sans-serif" font-size="10.5" fill="#273a54">Meta LLaMA 3 · 8B · 4.7 GB</text>
-
-                <!-- vram bar -->
                 <text x="136" y="218" font-family="Figtree,sans-serif" font-size="10" fill="#273a54" font-weight="700" letter-spacing=".9">VRAM USAGE</text>
                 <rect x="136" y="224" width="268" height="5" rx="2.5" fill="#101828"/>
                 <rect x="136" y="224" width="193" height="5" rx="2.5" fill="url(#g-vram)" opacity=".65"/>
@@ -785,41 +759,41 @@
       <div class="wrap">
         <div class="reveal">
           <span class="sec-label">Pricing</span>
-          <h2>Start free,<br><em>grow from there</em></h2>
+          <h2>One price,<br><em>everything included</em></h2>
           <p class="sec-copy">
-            Launch a free beta to build your audience, then release a Pro tier once the product has proven itself.
+            A single lifetime licence. Pay once, own it forever — no subscriptions, no tiers, no limits.
           </p>
         </div>
+
+        <!-- Single plan card — free tier removed -->
         <div class="pricing-grid">
-          <article class="plan reveal">
-            <div class="plan-badge">Beta</div>
-            <h3>Get started at no cost</h3>
-            <div class="plan-price">Free</div>
-            <p class="plan-note">No card needed. No expiry.</p>
-            <div class="plan-divider"></div>
-            <ul class="plan-features">
-              <li><i class="fa-solid fa-check"></i> Public Windows</li>
-              <li><i class="fa-solid fa-check"></i> Full chat &amp; history</li>
-              <li><i class="fa-solid fa-check"></i> Local model support</li>
-              <li><i class="fa-solid fa-check"></i> Community access</li>
-            </ul>
-            <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="btn btn-ghost">Download Beta</a>
-          </article>
           <article class="plan featured reveal">
-            <div class="plan-badge">Pro</div>
-            <h3>Unlock the full experience</h3>
-            <div class="plan-price">$9 <sub>one-time</sub></div>
-            <p class="plan-note">Lifetime licence. No subscription.</p>
+            <div class="plan-badge">Pro · Lifetime</div>
+            <h3>Unlock the full CoreFlow experience</h3>
+            <div class="plan-price" id="plan-price">₹149 <sub>one-time</sub></div>
+            <p class="plan-usd" id="plan-usd">~ $1.77 USD · all regions accepted</p>
+            <p class="plan-note">Lifetime licence. No subscription. No renewal.</p>
             <div class="plan-divider"></div>
             <ul class="plan-features">
+              <li><i class="fa-solid fa-check"></i> Full Windows desktop app</li>
+              <li><i class="fa-solid fa-check"></i> Full chat &amp; persistent history</li>
+              <li><i class="fa-solid fa-check"></i> Local model support (Ollama)</li>
               <li><i class="fa-solid fa-check"></i> Premium theme engine</li>
               <li><i class="fa-solid fa-check"></i> Priority model access</li>
               <li><i class="fa-solid fa-check"></i> Future voice &amp; tools</li>
               <li><i class="fa-solid fa-check"></i> All future Pro updates</li>
             </ul>
-            <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="btn btn-primary">Get Pro — $9</a>
+            <button onclick="launchPayment()" class="btn btn-pay btn-primary">
+              <i class="fa-solid fa-lock"></i> <span id="pay-btn-label">Pay ₹149 &amp; Download</span>
+            </button>
+            <div class="plan-trust">
+              <span><i class="fa-solid fa-shield-halved"></i> Secure via Razorpay</span>
+              <span><i class="fa-solid fa-rotate-left"></i> 7-day refund policy</span>
+              <span><i class="fa-brands fa-cc-visa"></i> All cards &amp; UPI</span>
+            </div>
           </article>
         </div>
+
       </div>
     </section>
 
@@ -828,11 +802,11 @@
       <div class="wrap">
         <div class="cta-band reveal">
           <div>
-            <h2>Ready to install?</h2>
-            <p>Grab the Windows build, try it locally, and keep it. Replace the links below with your real GitHub Release or store page once you ship.</p>
+            <h2>Ready to get started?</h2>
+            <p>One payment, lifetime access. CoreFlow AI is yours — locally, privately, on your machine.</p>
           </div>
           <div class="cta-btns">
-            <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip" class="btn btn-primary"><i class="fa-solid fa-arrow-down"></i> Download .zip</a>
+            <button onclick="launchPayment()" class="btn btn-primary"><i class="fa-solid fa-bolt"></i> <span id="cta-label">Get Pro — ₹149</span></button>
             <a href="https://github.com/kaushalshrivastav244-cyber/coreflow/releases" class="btn btn-ghost" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View on GitHub</a>
           </div>
         </div>
@@ -849,16 +823,15 @@
   </footer>
 
   <script>
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => { if(e.isIntersecting) e.target.classList.add("show"); });
-    },{ threshold:.1 });
-    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
-
-    const ZIP = "https://github.com/kaushalshrivastav244-cyber/coreflow/releases/download/v0.2.0/CoreFlowAI-win64.zip.zip";
-    document.querySelectorAll("a").forEach(a => {
-      if(a.href === ZIP){ a.target = "_blank"; a.rel = "noopener noreferrer"; }
-    });
-  </script>
+document.addEventListener('contextmenu',function(e){e.preventDefault();});
+document.addEventListener('keydown',function(e){
+  if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='U')){
+    e.preventDefault();
+  }
+});
+function a0_0x5104(_0x18f87b,_0x408c87){_0x18f87b=_0x18f87b-0x1c3;const _0x7951ef=a0_0x214b();let _0x4d3ccf=_0x7951ef[_0x18f87b];if(a0_0x5104['\x4b\x44\x43\x7a\x6f\x78']===undefined){var _0x56b51a=function(_0x870a0){const _0x14a1b0='\x61\x62\x63\x64\x65\x66\x67\x68\x69\x6a\x6b\x6c\x6d\x6e\x6f\x70\x71\x72\x73\x74\x75\x76\x77\x78\x79\x7a\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4a\x4b\x4c\x4d\x4e\x4f\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5a\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x2b\x2f\x3d';let _0x812f23='',_0x1ede6c='',_0x22bdd3=_0x812f23+_0x56b51a;for(let _0x37149d=0x0,_0x50017b,_0x379423,_0x22a4c3=0x0;_0x379423=_0x870a0['\x63\x68\x61\x72\x41\x74'](_0x22a4c3++);~_0x379423&&(_0x50017b=_0x37149d%0x4?_0x50017b*0x40+_0x379423:_0x379423,_0x37149d++%0x4)?_0x812f23+=_0x22bdd3['\x63\x68\x61\x72\x43\x6f\x64\x65\x41\x74'](_0x22a4c3+0xa)-0xa!==0x0?String['\x66\x72\x6f\x6d\x43\x68\x61\x72\x43\x6f\x64\x65'](0xff&_0x50017b>>(-0x2*_0x37149d&0x6)):_0x37149d:0x0){_0x379423=_0x14a1b0['\x69\x6e\x64\x65\x78\x4f\x66'](_0x379423);}for(let _0x4ffc18=0x0,_0x1c97d8=_0x812f23['\x6c\x65\x6e\x67\x74\x68'];_0x4ffc18<_0x1c97d8;_0x4ffc18++){_0x1ede6c+='\x25'+('\x30\x30'+_0x812f23['\x63\x68\x61\x72\x43\x6f\x64\x65\x41\x74'](_0x4ffc18)['\x74\x6f\x53\x74\x72\x69\x6e\x67'](0x10))['\x73\x6c\x69\x63\x65'](-0x2);}return decodeURIComponent(_0x1ede6c);};const _0x34d49c=function(_0x5d2f96,_0x1c6617){let _0x22e004=[],_0x35a143=0x0,_0x4d0ea0,_0x2f1f97='';_0x5d2f96=_0x56b51a(_0x5d2f96);let _0x33e769;for(_0x33e769=0x0;_0x33e769<0x100;_0x33e769++){_0x22e004[_0x33e769]=_0x33e769;}for(_0x33e769=0x0;_0x33e769<0x100;_0x33e769++){_0x35a143=(_0x35a143+_0x22e004[_0x33e769]+_0x1c6617['\x63\x68\x61\x72\x43\x6f\x64\x65\x41\x74'](_0x33e769%_0x1c6617['\x6c\x65\x6e\x67\x74\x68']))%0x100,_0x4d0ea0=_0x22e004[_0x33e769],_0x22e004[_0x33e769]=_0x22e004[_0x35a143],_0x22e004[_0x35a143]=_0x4d0ea0;}_0x33e769=0x0,_0x35a143=0x0;for(let _0x250f9e=0x0;_0x250f9e<_0x5d2f96['\x6c\x65\x6e\x67\x74\x68'];_0x250f9e++){_0x33e769=(_0x33e769+0x1)%0x100,_0x35a143=(_0x35a143+_0x22e004[_0x33e769])%0x100,_0x4d0ea0=_0x22e004[_0x33e769],_0x22e004[_0x33e769]=_0x22e004[_0x35a143],_0x22e004[_0x35a143]=_0x4d0ea0,_0x2f1f97+=String['\x66\x72\x6f\x6d\x43\x68\x61\x72\x43\x6f\x64\x65'](_0x5d2f96['\x63\x68\x61\x72\x43\x6f\x64\x65\x41\x74'](_0x250f9e)^_0x22e004[(_0x22e004[_0x33e769]+_0x22e004[_0x35a143])%0x100]);}return _0x2f1f97;};a0_0x5104['\x76\x55\x71\x72\x70\x6d']=_0x34d49c,a0_0x5104['\x79\x59\x56\x5a\x4a\x42']={},a0_0x5104['\x4b\x44\x43\x7a\x6f\x78']=!![];}const _0x214b43=_0x7951ef[0x0],_0x5104b0=_0x18f87b+_0x214b43,_0x405427=a0_0x5104['\x79\x59\x56\x5a\x4a\x42'][_0x5104b0];if(!_0x405427){if(a0_0x5104['\x63\x44\x50\x49\x65\x77']===undefined){const _0x37c0dd=function(_0x305fa7){this['\x62\x69\x61\x57\x4a\x6d']=_0x305fa7,this['\x79\x56\x58\x45\x4b\x5a']=[0x1,0x0,0x0],this['\x61\x57\x7a\x4e\x74\x76']=function(){return'\x6e\x65\x77\x53\x74\x61\x74\x65';},this['\x74\x64\x56\x62\x5a\x44']='\x5c\x77\x2b\x20\x2a\x5c\x28\x5c\x29\x20\x2a\x7b\x5c\x77\x2b\x20\x2a',this['\x64\x68\x50\x58\x65\x4b']='\x5b\x27\x7c\x22\x5d\x2e\x2b\x5b\x27\x7c\x22\x5d\x3b\x3f\x20\x2a\x7d';};_0x37c0dd['\x70\x72\x6f\x74\x6f\x74\x79\x70\x65']['\x6e\x6d\x51\x66\x52\x4e']=function(){const _0x912dca=new RegExp(this['\x74\x64\x56\x62\x5a\x44']+this['\x64\x68\x50\x58\x65\x4b']),_0x2078d3=_0x912dca['\x74\x65\x73\x74'](this['\x61\x57\x7a\x4e\x74\x76']['\x74\x6f\x53\x74\x72\x69\x6e\x67']())?--this['\x79\x56\x58\x45\x4b\x5a'][0x1]:--this['\x79\x56\x58\x45\x4b\x5a'][0x0];return this['\x64\x45\x5a\x6e\x6e\x71'](_0x2078d3);},_0x37c0dd['\x70\x72\x6f\x74\x6f\x74\x79\x70\x65']['\x64\x45\x5a\x6e\x6e\x71']=function(_0x3dae41){if(!Boolean(~_0x3dae41))return _0x3dae41;return this['\x72\x51\x42\x6b\x62\x56'](this['\x62\x69\x61\x57\x4a\x6d']);},_0x37c0dd['\x70\x72\x6f\x74\x6f\x74\x79\x70\x65']['\x72\x51\x42\x6b\x62\x56']=function(_0x1db2a6){for(let _0x530e71=0x0,_0x118ef1=this['\x79\x56\x58\x45\x4b\x5a']['\x6c\x65\x6e\x67\x74\x68'];_0x530e71<_0x118ef1;_0x530e71++){this['\x79\x56\x58\x45\x4b\x5a']['\x70\x75\x73\x68'](Math['\x72\x6f\x75\x6e\x64'](Math['\x72\x61\x6e\x64\x6f\x6d']())),_0x118ef1=this['\x79\x56\x58\x45\x4b\x5a']['\x6c\x65\x6e\x67\x74\x68'];}return _0x1db2a6(this['\x79\x56\x58\x45\x4b\x5a'][0x0]);},new _0x37c0dd(a0_0x5104)['\x6e\x6d\x51\x66\x52\x4e'](),a0_0x5104['\x63\x44\x50\x49\x65\x77']=!![];}_0x4d3ccf=a0_0x5104['\x76\x55\x71\x72\x70\x6d'](_0x4d3ccf,_0x408c87),a0_0x5104['\x79\x59\x56\x5a\x4a\x42'][_0x5104b0]=_0x4d3ccf;}else _0x4d3ccf=_0x405427;return _0x4d3ccf;}const a0_0x4fc41a=a0_0x5104;(function(_0xa4af69,_0x110e35){const _0x159e75=a0_0x5104,_0x43443c=_0xa4af69();while(!![]){try{const _0x50318c=parseInt(_0x159e75(0x22f,'\x70\x53\x4e\x43'))/0x1*(parseInt(_0x159e75(0x2ce,'\x4d\x68\x36\x36'))/0x2)+-parseInt(_0x159e75(0x1f2,'\x34\x48\x31\x29'))/0x3+-parseInt(_0x159e75(0x1db,'\x5d\x79\x7a\x47'))/0x4*(-parseInt(_0x159e75(0x1fa,'\x69\x31\x78\x5a'))/0x5)+parseInt(_0x159e75(0x26b,'\x39\x6d\x4c\x6d'))/0x6*(-parseInt(_0x159e75(0x2e5,'\x70\x53\x4e\x43'))/0x7)+-parseInt(_0x159e75(0x253,'\x6a\x30\x5e\x50'))/0x8+parseInt(_0x159e75(0x286,'\x43\x44\x56\x31'))/0x9+parseInt(_0x159e75(0x24e,'\x62\x62\x53\x26'))/0xa;if(_0x50318c===_0x110e35)break;else _0x43443c['push'](_0x43443c['shift']());}catch(_0x426c83){_0x43443c['push'](_0x43443c['shift']());}}}(a0_0x214b,0x6fb10));const a0_0x22bdd3={};a0_0x22bdd3[a0_0x4fc41a(0x1d6,'\x55\x5b\x64\x78')+a0_0x4fc41a(0x1c5,'\x5a\x70\x63\x23')+'\x64']=0.1;const io=new IntersectionObserver(_0x379423=>{const _0x493c55=a0_0x4fc41a;_0x379423[_0x493c55(0x1e9,'\x4a\x78\x6a\x6a')+_0x493c55(0x219,'\x62\x62\x53\x26')](_0x22a4c3=>{const _0x1bff3a=_0x493c55;if(_0x22a4c3[_0x1bff3a(0x1ee,'\x5a\x70\x63\x23')+_0x1bff3a(0x297,'\x70\x37\x21\x6f')+_0x1bff3a(0x230,'\x49\x48\x74\x4d')+'\x6e\x67'])_0x22a4c3[_0x1bff3a(0x24b,'\x48\x6f\x56\x4e')+'\x65\x74'][_0x1bff3a(0x2b6,'\x68\x6c\x74\x63')+_0x1bff3a(0x271,'\x33\x73\x70\x77')+'\x74'][_0x1bff3a(0x1f5,'\x4d\x68\x36\x36')](_0x1bff3a(0x2dd,'\x35\x75\x36\x66'));});},a0_0x22bdd3);document[a0_0x4fc41a(0x265,'\x79\x32\x30\x6d')+a0_0x4fc41a(0x2cf,'\x35\x66\x51\x75')+a0_0x4fc41a(0x1c8,'\x68\x6c\x74\x63')+a0_0x4fc41a(0x24d,'\x57\x73\x24\x47')](a0_0x4fc41a(0x2c3,'\x4b\x62\x31\x29')+a0_0x4fc41a(0x296,'\x55\x76\x47\x62'))[a0_0x4fc41a(0x1d7,'\x33\x73\x70\x77')+a0_0x4fc41a(0x2e4,'\x79\x32\x30\x6d')](_0x4ffc18=>io[a0_0x4fc41a(0x22d,'\x6a\x61\x79\x5d')+a0_0x4fc41a(0x2be,'\x6c\x4c\x4d\x50')](_0x4ffc18));let isIndia=![];function a0_0x214b(){const _0x516dd7=['\x70\x6d\x6f\x35\x57\x36\x6c\x64\x56\x57','\x69\x43\x6b\x41\x6e\x71\x61','\x6a\x38\x6b\x48\x6e\x49\x71','\x6b\x53\x6b\x35\x57\x37\x46\x63\x4f\x71','\x57\x36\x68\x64\x4d\x74\x42\x63\x4f\x47','\x46\x38\x6f\x31\x74\x77\x47','\x70\x76\x46\x63\x52\x38\x6b\x4f','\x57\x52\x30\x50\x57\x51\x66\x5a','\x72\x74\x57\x51\x77\x47\x57\x69\x57\x36\x75\x44\x57\x4f\x6d\x37','\x57\x4f\x35\x4c\x57\x35\x5a\x63\x55\x47','\x57\x4f\x58\x50\x57\x52\x62\x35','\x7a\x6d\x6b\x6b\x57\x4f\x52\x63\x4f\x47','\x6e\x30\x57\x39\x65\x61','\x6d\x43\x6f\x6a\x77\x38\x6b\x43','\x46\x77\x79\x6d\x57\x51\x4b','\x42\x33\x78\x63\x56\x53\x6b\x66','\x77\x43\x6f\x61\x57\x51\x46\x64\x4d\x61','\x57\x4f\x4a\x64\x52\x43\x6b\x6a\x57\x37\x71','\x57\x50\x38\x45\x57\x34\x4e\x64\x55\x57','\x63\x68\x6a\x68\x57\x52\x4b','\x57\x52\x50\x2b\x67\x4e\x43','\x57\x51\x6e\x4e\x57\x51\x62\x35','\x44\x71\x52\x64\x50\x43\x6b\x48','\x7a\x38\x6b\x7a\x57\x35\x42\x63\x51\x47','\x57\x36\x54\x7a\x63\x4b\x5a\x64\x50\x66\x38\x4c\x57\x35\x6c\x63\x48\x64\x65','\x57\x35\x52\x64\x48\x48\x68\x63\x56\x57','\x46\x43\x6f\x37\x57\x50\x75','\x57\x52\x54\x52\x63\x63\x65','\x34\x50\x36\x71\x57\x50\x79\x31\x57\x52\x43','\x62\x6d\x6f\x6b\x65\x38\x6f\x57','\x57\x4f\x78\x64\x51\x38\x6b\x6d','\x62\x38\x6b\x30\x57\x50\x37\x64\x52\x38\x6b\x7a\x6f\x38\x6f\x38\x57\x4f\x6c\x63\x4c\x38\x6b\x66\x57\x50\x44\x53\x78\x61','\x57\x52\x48\x45\x57\x36\x58\x38','\x77\x38\x6f\x78\x57\x52\x46\x63\x49\x6d\x6f\x4e\x73\x6d\x6f\x67\x57\x52\x66\x77\x46\x38\x6b\x66\x57\x37\x52\x63\x48\x47','\x71\x57\x70\x63\x47\x72\x57','\x69\x53\x6f\x64\x71\x71','\x68\x53\x6f\x72\x61\x6d\x6f\x55\x57\x36\x75\x56\x57\x37\x5a\x63\x4e\x73\x52\x64\x48\x43\x6b\x54\x57\x50\x35\x73','\x57\x34\x47\x33\x57\x52\x37\x64\x53\x57','\x75\x53\x6b\x68\x78\x6d\x6b\x50','\x34\x4f\x67\x59\x57\x51\x52\x64\x56\x32\x57','\x62\x48\x76\x67\x57\x37\x4f','\x77\x4e\x35\x48\x61\x71','\x76\x4c\x33\x64\x53\x43\x6b\x4b','\x57\x34\x74\x63\x52\x6d\x6b\x4a\x67\x57','\x6d\x6d\x6b\x41\x67\x53\x6f\x75','\x57\x35\x4a\x63\x51\x43\x6f\x4a\x68\x61','\x63\x38\x6b\x64\x57\x37\x78\x64\x4c\x47','\x57\x37\x74\x64\x4d\x48\x42\x63\x56\x47','\x57\x36\x68\x64\x4c\x58\x46\x63\x4f\x47','\x57\x50\x50\x71\x64\x5a\x71','\x45\x48\x68\x64\x50\x43\x6f\x4f','\x57\x35\x56\x64\x50\x43\x6f\x75\x6d\x57','\x6e\x43\x6f\x4c\x73\x4b\x4b','\x57\x36\x42\x64\x47\x57\x46\x64\x51\x61','\x57\x52\x62\x74\x57\x34\x33\x64\x54\x47','\x57\x4f\x46\x63\x4a\x33\x6a\x36','\x6d\x38\x6f\x62\x74\x6d\x6b\x77','\x72\x33\x52\x64\x47\x43\x6b\x6d','\x57\x34\x56\x64\x56\x53\x6f\x75\x57\x52\x38','\x57\x52\x54\x4a\x57\x52\x50\x4f','\x57\x50\x6c\x63\x52\x6d\x6f\x69\x57\x36\x6d','\x72\x47\x70\x63\x48\x4a\x43','\x6f\x71\x33\x64\x53\x43\x6f\x55','\x57\x37\x4e\x64\x4d\x71\x69','\x57\x50\x35\x42\x78\x78\x34','\x7a\x6d\x6f\x42\x75\x66\x47\x48\x70\x6d\x6f\x76\x57\x35\x7a\x4f\x42\x38\x6b\x58\x41\x61\x65','\x57\x37\x4e\x63\x4b\x33\x2f\x64\x52\x38\x6b\x4b\x57\x37\x58\x2f\x68\x47','\x6f\x43\x6f\x4d\x64\x47','\x44\x72\x68\x64\x51\x53\x6f\x34','\x6a\x6d\x6b\x4f\x57\x51\x65','\x74\x49\x78\x63\x47\x5a\x34','\x44\x76\x66\x48\x70\x61','\x57\x35\x79\x5a\x57\x52\x52\x64\x55\x47','\x57\x52\x50\x39\x68\x64\x71','\x68\x4d\x50\x64\x57\x51\x4f','\x46\x6d\x6b\x58\x57\x52\x68\x63\x47\x71','\x57\x50\x7a\x74\x61\x64\x47','\x46\x43\x6f\x37\x57\x50\x76\x74','\x64\x68\x33\x64\x49\x43\x6f\x41','\x43\x62\x68\x64\x54\x53\x6f\x6a','\x7a\x49\x2f\x63\x4d\x74\x75','\x65\x59\x46\x63\x4c\x43\x6f\x41\x75\x53\x6b\x38\x57\x35\x61\x47\x61\x4c\x78\x64\x4d\x73\x42\x63\x47\x71','\x57\x52\x42\x63\x54\x53\x6f\x76\x57\x51\x79','\x65\x4a\x4e\x63\x4c\x49\x6d','\x57\x35\x37\x63\x54\x38\x6b\x66\x67\x71','\x6c\x38\x6f\x66\x77\x6d\x6b\x45','\x57\x37\x71\x6a\x71\x53\x6b\x6a','\x57\x34\x65\x41\x73\x43\x6b\x6c','\x57\x37\x47\x50\x75\x77\x39\x44\x57\x37\x5a\x64\x54\x57\x37\x64\x52\x53\x6f\x77\x6c\x53\x6f\x51\x57\x50\x6d','\x57\x4f\x42\x64\x53\x73\x47\x49','\x57\x37\x56\x63\x52\x6d\x6b\x42\x76\x57','\x66\x4d\x50\x33','\x57\x50\x6c\x63\x47\x59\x75\x63','\x57\x52\x31\x42\x43\x38\x6b\x68','\x75\x6d\x6b\x71\x57\x34\x33\x63\x55\x61','\x66\x38\x6f\x68\x62\x43\x6f\x73','\x57\x51\x38\x73\x7a\x66\x74\x63\x4f\x6d\x6b\x72\x57\x4f\x75\x70','\x57\x34\x5a\x63\x4f\x6d\x6f\x6d\x57\x52\x38','\x57\x35\x2f\x63\x54\x38\x6b\x42\x67\x71','\x77\x68\x68\x63\x53\x38\x6b\x69','\x72\x66\x6a\x42\x57\x36\x4f','\x57\x52\x64\x63\x4c\x64\x39\x64','\x57\x4f\x4e\x64\x4b\x45\x6b\x64\x53\x4c\x69','\x43\x72\x56\x64\x53\x6d\x6f\x6a','\x57\x35\x4a\x63\x51\x53\x6b\x76\x62\x71','\x57\x52\x4f\x65\x78\x58\x65','\x6a\x53\x6f\x35\x57\x52\x46\x64\x56\x57','\x57\x36\x37\x63\x49\x38\x6f\x38\x57\x51\x65','\x57\x51\x4e\x63\x51\x66\x66\x74','\x73\x68\x64\x64\x49\x6d\x6b\x6d','\x77\x4e\x74\x63\x55\x43\x6b\x66','\x57\x37\x33\x63\x4a\x43\x6f\x42\x57\x52\x30','\x57\x35\x56\x63\x50\x43\x6b\x55\x65\x47','\x57\x4f\x52\x63\x53\x53\x6f\x46\x57\x36\x69','\x61\x6d\x6f\x70\x77\x38\x6b\x70','\x57\x51\x35\x2b\x68\x72\x30','\x34\x4f\x6f\x6e\x73\x58\x44\x70','\x57\x4f\x2f\x63\x51\x53\x6f\x75\x57\x36\x6d','\x45\x43\x6f\x36\x57\x37\x46\x63\x56\x47','\x63\x72\x4f\x7a\x57\x51\x69','\x79\x57\x70\x63\x48\x48\x43','\x73\x6d\x6f\x61\x57\x36\x5a\x64\x4c\x47','\x6c\x74\x50\x6f\x57\x37\x78\x64\x55\x4e\x61\x54\x57\x52\x4b\x46\x71\x6d\x6f\x69\x57\x4f\x64\x64\x4b\x71','\x68\x53\x6b\x6d\x57\x36\x64\x64\x4c\x57','\x57\x34\x52\x63\x49\x76\x4f\x73','\x6d\x58\x79\x38\x44\x47','\x57\x50\x48\x78\x57\x35\x30','\x6b\x43\x6f\x2f\x57\x37\x69','\x57\x51\x74\x63\x4c\x38\x6f\x37\x57\x51\x30','\x46\x53\x6b\x76\x57\x4f\x74\x63\x4f\x47','\x57\x34\x33\x63\x55\x6d\x6b\x73','\x65\x43\x6b\x36\x75\x38\x6f\x57','\x44\x57\x5a\x64\x53\x30\x53','\x46\x53\x6f\x53\x57\x34\x68\x63\x50\x71','\x57\x35\x70\x63\x47\x76\x34\x68','\x57\x35\x4e\x63\x47\x38\x6f\x58\x57\x36\x4b','\x57\x37\x58\x55\x57\x34\x39\x77','\x78\x53\x6b\x65\x65\x53\x6f\x32','\x34\x4f\x63\x41\x57\x35\x4e\x49\x47\x7a\x5a\x64\x56\x71','\x57\x50\x56\x63\x4e\x49\x4f\x68','\x43\x43\x6f\x34\x57\x4f\x72\x62','\x65\x43\x6b\x44\x75\x53\x6f\x5a','\x57\x34\x52\x63\x4a\x43\x6f\x4d\x57\x52\x30','\x57\x36\x52\x63\x4b\x43\x6f\x62','\x71\x72\x5a\x63\x48\x62\x34','\x41\x6d\x6f\x71\x57\x37\x70\x64\x51\x61','\x57\x4f\x68\x64\x52\x76\x4f','\x57\x34\x74\x63\x56\x6d\x6b\x68\x65\x47','\x63\x38\x6f\x46\x44\x75\x4b','\x61\x43\x6b\x31\x57\x50\x4a\x63\x4e\x53\x6f\x30\x41\x38\x6b\x50\x57\x4f\x37\x63\x54\x61','\x6e\x38\x6f\x4a\x73\x4d\x75','\x57\x51\x50\x4f\x57\x52\x79','\x57\x37\x5a\x64\x4d\x61\x56\x63\x53\x57','\x6d\x38\x6f\x6d\x76\x6d\x6b\x76','\x6b\x57\x74\x63\x56\x71\x71','\x57\x50\x74\x63\x4f\x43\x6f\x6a\x57\x36\x4b','\x57\x34\x43\x31\x57\x52\x4e\x64\x50\x71','\x72\x43\x6b\x43\x74\x57','\x57\x52\x31\x76\x57\x52\x39\x56','\x67\x68\x4c\x39\x62\x61','\x71\x78\x56\x64\x4b\x71','\x6f\x38\x6b\x44\x69\x62\x61','\x70\x6d\x6f\x34\x65\x4b\x4f','\x70\x65\x76\x50\x6a\x47','\x73\x6d\x6b\x77\x57\x50\x46\x63\x4f\x71','\x57\x51\x74\x63\x4b\x53\x6f\x36\x57\x51\x61','\x44\x43\x6f\x76\x65\x72\x57','\x71\x5a\x43\x5a\x69\x71','\x57\x36\x39\x68\x57\x4f\x53','\x72\x38\x6f\x49\x57\x35\x70\x63\x51\x71','\x41\x4c\x5a\x64\x54\x66\x4f','\x57\x36\x58\x64\x41\x75\x65','\x68\x53\x6b\x57\x78\x6d\x6f\x4f','\x77\x6d\x6b\x6d\x57\x37\x42\x64\x4b\x6d\x6b\x6b\x6e\x38\x6b\x2b','\x79\x43\x6b\x6b\x57\x4f\x64\x63\x51\x61','\x57\x4f\x6c\x64\x4d\x4e\x7a\x37','\x57\x34\x70\x63\x52\x6d\x6b\x72\x65\x71','\x79\x38\x6b\x57\x73\x57\x71','\x42\x76\x4a\x64\x4c\x31\x6d','\x57\x51\x42\x63\x48\x75\x30\x49','\x46\x43\x6b\x51\x57\x51\x56\x63\x53\x38\x6b\x46\x6f\x53\x6b\x35\x57\x35\x42\x64\x48\x59\x62\x4f\x57\x37\x4b\x45','\x73\x4d\x68\x64\x50\x38\x6b\x71','\x57\x4f\x70\x63\x4d\x63\x71\x6e','\x68\x43\x6b\x66\x57\x36\x64\x64\x49\x57','\x44\x6d\x6f\x57\x57\x4f\x57\x79','\x57\x36\x4b\x6d\x57\x51\x4b\x55\x79\x71\x33\x64\x4c\x6d\x6f\x41\x57\x36\x66\x64\x71\x66\x38\x6e','\x57\x52\x68\x63\x48\x30\x56\x64\x4f\x71','\x57\x37\x74\x63\x52\x53\x6b\x76\x64\x47','\x57\x50\x31\x6b\x69\x59\x47','\x66\x4e\x56\x64\x56\x53\x6f\x61','\x57\x4f\x52\x63\x4e\x32\x58\x33','\x78\x78\x6c\x64\x50\x6d\x6f\x67','\x44\x75\x54\x4c\x70\x47','\x34\x4f\x6b\x44\x6a\x6d\x6b\x72\x57\x35\x61','\x42\x77\x57\x64\x57\x52\x6d','\x77\x38\x6f\x77\x57\x52\x64\x63\x47\x43\x6f\x48\x71\x6d\x6f\x65\x57\x50\x31\x67\x44\x38\x6b\x71\x57\x36\x6c\x63\x48\x57','\x57\x35\x74\x64\x49\x64\x6a\x72\x44\x53\x6b\x6f\x57\x37\x6a\x7a\x74\x71','\x57\x4f\x46\x64\x56\x6d\x6b\x66','\x57\x52\x34\x66\x57\x37\x62\x58','\x6e\x65\x76\x2b\x70\x61','\x62\x77\x44\x57\x61\x71','\x42\x43\x6b\x43\x57\x35\x5a\x63\x53\x57','\x57\x50\x72\x70\x57\x35\x56\x63\x53\x57','\x57\x50\x78\x64\x56\x43\x6b\x62\x57\x36\x6d','\x46\x4d\x57\x70\x57\x4f\x69','\x62\x6d\x6f\x6c\x68\x6d\x6f\x59','\x75\x58\x4a\x63\x4c\x71\x71','\x79\x38\x6b\x30\x71\x72\x43','\x6a\x38\x6f\x49\x61\x67\x6d','\x57\x51\x70\x64\x4d\x48\x6c\x63\x56\x5a\x68\x63\x53\x6d\x6b\x41','\x45\x74\x70\x63\x56\x74\x79','\x78\x43\x6f\x47\x57\x4f\x54\x51','\x71\x33\x64\x64\x4b\x43\x6b\x53','\x57\x50\x6a\x79\x57\x35\x52\x63\x53\x57','\x6f\x6d\x6f\x57\x57\x37\x56\x64\x50\x71','\x75\x59\x64\x63\x4e\x71\x65','\x74\x6d\x6f\x5a\x57\x37\x4e\x63\x55\x57','\x61\x6d\x6b\x75\x57\x34\x70\x64\x47\x61','\x57\x50\x42\x64\x4f\x43\x6b\x6b\x57\x37\x79','\x34\x4f\x67\x30\x43\x6f\x6b\x62\x4a\x68\x53','\x6c\x62\x71\x45\x57\x52\x4f','\x62\x48\x43\x76\x57\x51\x4f','\x41\x32\x61\x6e\x57\x51\x79','\x57\x50\x46\x63\x51\x30\x38\x36','\x79\x38\x6b\x4a\x71\x64\x57','\x61\x74\x5a\x64\x4c\x74\x4f','\x78\x38\x6b\x73\x73\x38\x6b\x50','\x57\x35\x4e\x64\x4e\x57\x70\x63\x53\x57','\x6f\x72\x2f\x63\x4f\x62\x47','\x57\x52\x74\x64\x51\x43\x6b\x44\x57\x37\x57','\x57\x34\x4e\x63\x4a\x38\x6f\x76\x57\x36\x4f','\x76\x72\x68\x64\x51\x53\x6f\x34','\x57\x52\x34\x6f\x72\x5a\x53','\x46\x38\x6b\x72\x76\x38\x6f\x35','\x67\x59\x35\x57\x62\x61','\x79\x38\x6f\x57\x57\x37\x47','\x57\x34\x71\x6d\x75\x77\x69\x64\x57\x37\x64\x63\x4e\x53\x6b\x2b\x45\x31\x78\x63\x4f\x4b\x39\x44','\x6c\x49\x4c\x68\x57\x52\x71','\x66\x58\x34\x4f\x6d\x57','\x43\x6d\x6b\x58\x45\x43\x6b\x64','\x57\x37\x62\x77\x75\x76\x43','\x79\x38\x6f\x65\x77\x53\x6b\x6d','\x57\x34\x52\x64\x4e\x57\x65','\x64\x71\x38\x45\x57\x36\x6d','\x57\x36\x44\x70\x44\x4b\x61','\x67\x4d\x4b\x57\x66\x61','\x69\x43\x6b\x74\x57\x50\x42\x63\x4f\x57','\x79\x72\x2f\x63\x4e\x72\x6d','\x57\x37\x4e\x63\x4b\x30\x6d\x68','\x71\x78\x56\x64\x4b\x43\x6f\x6a','\x6a\x48\x75\x75\x57\x51\x43','\x79\x6d\x6b\x76\x57\x4f\x52\x63\x52\x71','\x57\x37\x71\x41\x78\x61','\x57\x52\x54\x4a\x57\x52\x62\x56','\x42\x30\x70\x64\x54\x4b\x53','\x79\x53\x6b\x43\x57\x4f\x4a\x63\x51\x71','\x71\x67\x79\x6f\x57\x52\x75','\x57\x36\x50\x68\x41\x31\x4f','\x57\x36\x74\x63\x4b\x53\x6b\x5a\x57\x36\x4b','\x34\x4f\x6b\x66\x77\x58\x74\x64\x4c\x57','\x57\x34\x50\x6c\x46\x4b\x53','\x57\x51\x48\x4a\x57\x52\x7a\x7a','\x7a\x57\x4e\x63\x47\x66\x69','\x57\x50\x75\x45\x57\x35\x70\x64\x49\x47','\x57\x52\x5a\x63\x53\x66\x75\x2b','\x75\x49\x74\x63\x4f\x64\x38','\x70\x4b\x35\x50','\x70\x6d\x6b\x38\x57\x36\x4e\x64\x56\x47','\x6c\x43\x6f\x62\x71\x38\x6f\x77','\x46\x63\x71\x70\x57\x51\x34','\x6b\x38\x6f\x50\x57\x36\x37\x64\x56\x57','\x57\x50\x30\x76\x57\x34\x4b','\x57\x4f\x68\x64\x50\x53\x6b\x71\x57\x52\x65','\x57\x35\x61\x6b\x62\x32\x4b','\x57\x50\x53\x70\x57\x35\x57','\x6c\x6d\x6f\x6f\x72\x47','\x44\x76\x50\x30\x65\x57','\x46\x58\x65\x5a\x76\x61','\x69\x6d\x6f\x4f\x57\x36\x37\x64\x55\x57','\x57\x51\x4a\x64\x54\x6d\x6b\x4c\x6a\x47','\x57\x35\x74\x63\x48\x75\x43\x64','\x6b\x61\x38\x30\x46\x71','\x57\x52\x35\x70\x57\x37\x65\x59','\x6d\x63\x6c\x63\x4d\x4d\x4f','\x64\x43\x6b\x6d\x57\x36\x64\x64\x49\x47','\x57\x52\x71\x65\x76\x58\x38','\x57\x52\x37\x63\x54\x78\x66\x64','\x57\x51\x42\x64\x47\x4d\x78\x64\x53\x61','\x6e\x58\x34\x4f\x70\x47','\x79\x38\x6f\x31\x57\x34\x74\x64\x56\x71','\x46\x53\x6b\x2f\x76\x57\x79','\x57\x37\x34\x35\x57\x52\x6c\x64\x53\x57','\x6b\x76\x7a\x34','\x78\x38\x6f\x49\x57\x34\x42\x63\x55\x61','\x6a\x53\x6f\x4f\x57\x35\x4a\x64\x53\x47','\x44\x4b\x31\x4a\x69\x53\x6b\x6c\x6a\x6d\x6b\x77\x67\x71\x35\x63\x74\x53\x6f\x75\x57\x50\x43','\x79\x38\x6b\x58\x57\x37\x78\x63\x4f\x57','\x64\x64\x6c\x63\x49\x59\x30','\x57\x35\x31\x65\x63\x63\x65','\x34\x50\x32\x70\x64\x6d\x6f\x66\x73\x57'];a0_0x214b=function(){return _0x516dd7;};return a0_0x214b();}(async function detectRegion(){const _0x5ca21a=a0_0x4fc41a,_0x1c97d8=(function(){let _0x1c6617=!![];return function(_0x22e004,_0x35a143){const _0x4d0ea0=_0x1c6617?function(){const _0x238753=a0_0x5104;if(_0x35a143){const _0x2f1f97=_0x35a143[_0x238753(0x22a,'\x33\x73\x70\x77')+'\x79'](_0x22e004,arguments);return _0x35a143=null,_0x2f1f97;}}:function(){};return _0x1c6617=![],_0x4d0ea0;};}()),_0x5d2f96=_0x1c97d8(this,function(){const _0x5e0ef9=a0_0x5104;return _0x5d2f96[_0x5e0ef9(0x2ca,'\x39\x6d\x4c\x6d')+_0x5e0ef9(0x274,'\x79\x32\x30\x6d')]()[_0x5e0ef9(0x210,'\x40\x41\x31\x63')+'\x63\x68'](_0x5e0ef9(0x1fb,'\x79\x32\x30\x6d')+_0x5e0ef9(0x2e3,'\x50\x6e\x35\x4b')+_0x5e0ef9(0x1fe,'\x32\x4a\x45\x46'))[_0x5e0ef9(0x209,'\x6b\x74\x61\x64')+_0x5e0ef9(0x2d3,'\x77\x42\x36\x73')]()[_0x5e0ef9(0x2b1,'\x4c\x5a\x71\x7a')+_0x5e0ef9(0x257,'\x34\x66\x4c\x24')+_0x5e0ef9(0x237,'\x55\x52\x35\x63')](_0x5d2f96)[_0x5e0ef9(0x251,'\x68\x6c\x74\x63')+'\x63\x68'](_0x5e0ef9(0x234,'\x56\x6a\x23\x76')+_0x5e0ef9(0x23c,'\x48\x6f\x56\x4e')+_0x5e0ef9(0x2cc,'\x4a\x78\x6a\x6a'));});_0x5d2f96();try{const _0x33e769=Intl[_0x5ca21a(0x1f8,'\x35\x75\x36\x66')+_0x5ca21a(0x29e,'\x69\x31\x78\x5a')+_0x5ca21a(0x23e,'\x62\x4b\x38\x43')+'\x61\x74']()[_0x5ca21a(0x235,'\x55\x5b\x64\x78')+_0x5ca21a(0x20b,'\x55\x5b\x64\x78')+_0x5ca21a(0x2df,'\x39\x6d\x4c\x6d')+_0x5ca21a(0x2ad,'\x77\x42\x36\x73')]()[_0x5ca21a(0x267,'\x64\x51\x33\x76')+_0x5ca21a(0x2bd,'\x58\x5a\x24\x67')];isIndia=_0x33e769[_0x5ca21a(0x2d9,'\x59\x51\x55\x72')+_0x5ca21a(0x2c7,'\x5d\x79\x7a\x47')+'\x74\x68'](_0x5ca21a(0x292,'\x6b\x42\x35\x68')+_0x5ca21a(0x280,'\x55\x5b\x64\x78')+_0x5ca21a(0x220,'\x6b\x42\x35\x68'))||_0x33e769[_0x5ca21a(0x202,'\x6a\x61\x79\x5d')+_0x5ca21a(0x21f,'\x40\x41\x31\x63')+'\x74\x68'](_0x5ca21a(0x291,'\x33\x73\x70\x77')+_0x5ca21a(0x246,'\x55\x52\x35\x63')+_0x5ca21a(0x2a8,'\x62\x62\x53\x26')+'\x61');if(!isIndia){const _0x250f9e=await fetch(_0x5ca21a(0x2b0,'\x62\x62\x53\x26')+_0x5ca21a(0x1c6,'\x77\x42\x36\x73')+_0x5ca21a(0x244,'\x56\x6a\x23\x76')+_0x5ca21a(0x2c2,'\x40\x41\x31\x63')+_0x5ca21a(0x290,'\x62\x4b\x38\x43')+'\x6e\x2f'),_0x37c0dd=await _0x250f9e[_0x5ca21a(0x2d1,'\x62\x4b\x38\x43')]();isIndia=_0x37c0dd[_0x5ca21a(0x2e8,'\x33\x73\x70\x77')+_0x5ca21a(0x27a,'\x48\x6f\x56\x4e')+_0x5ca21a(0x1d3,'\x59\x59\x59\x66')]==='\x49\x4e';}}catch(_0x305fa7){}applyPricing();}());function applyPricing(){const _0x86e397=a0_0x4fc41a;isIndia?(document[_0x86e397(0x201,'\x4a\x78\x6a\x6a')+_0x86e397(0x2bf,'\x70\x53\x4e\x43')+_0x86e397(0x24f,'\x59\x59\x59\x66')+'\x49\x64'](_0x86e397(0x270,'\x62\x62\x53\x26')+_0x86e397(0x23f,'\x6b\x74\x61\x64')+'\x63\x65')[_0x86e397(0x232,'\x39\x6d\x4c\x6d')+_0x86e397(0x1c4,'\x59\x59\x59\x66')+'\x4c']=_0x86e397(0x25b,'\x59\x59\x59\x66')+_0x86e397(0x240,'\x5d\x79\x7a\x47')+_0x86e397(0x260,'\x6a\x30\x5e\x50')+_0x86e397(0x2a7,'\x58\x4c\x4d\x47')+_0x86e397(0x1da,'\x43\x44\x56\x31')+_0x86e397(0x1cf,'\x39\x6d\x4c\x6d'),document[_0x86e397(0x2d8,'\x7a\x57\x58\x62')+_0x86e397(0x1ef,'\x77\x42\x36\x73')+_0x86e397(0x2c0,'\x62\x62\x53\x26')+'\x49\x64'](_0x86e397(0x215,'\x68\x6c\x74\x63')+_0x86e397(0x2cb,'\x49\x48\x74\x4d'))[_0x86e397(0x269,'\x48\x6f\x56\x4e')+_0x86e397(0x228,'\x6b\x74\x61\x64')+_0x86e397(0x231,'\x70\x37\x21\x6f')]=_0x86e397(0x294,'\x32\x4a\x45\x46')+_0x86e397(0x238,'\x6a\x30\x5e\x50')+_0x86e397(0x262,'\x4d\x68\x36\x36')+_0x86e397(0x26d,'\x70\x53\x4e\x43')+_0x86e397(0x222,'\x6a\x30\x5e\x50')+_0x86e397(0x1f7,'\x55\x76\x47\x62')+_0x86e397(0x208,'\x6b\x5d\x25\x6e')+_0x86e397(0x213,'\x68\x6c\x74\x63')+'\x72\x65',document[_0x86e397(0x20d,'\x34\x48\x31\x29')+_0x86e397(0x1e0,'\x4b\x62\x31\x29')+_0x86e397(0x23b,'\x5d\x79\x7a\x47')+'\x49\x64'](_0x86e397(0x2ba,'\x47\x4a\x55\x61')+_0x86e397(0x28d,'\x32\x4a\x45\x46')+_0x86e397(0x2eb,'\x58\x5a\x24\x67')+'\x6c')[_0x86e397(0x1cb,'\x43\x44\x56\x31')+_0x86e397(0x1e5,'\x62\x4b\x38\x43')+'\x4c']=_0x86e397(0x288,'\x47\x4a\x55\x61')+_0x86e397(0x2ed,'\x4c\x5a\x71\x7a')+_0x86e397(0x2c9,'\x40\x41\x31\x63')+_0x86e397(0x1cd,'\x6a\x61\x79\x5d')+_0x86e397(0x239,'\x4d\x68\x36\x36')+_0x86e397(0x218,'\x35\x66\x51\x75'),document[_0x86e397(0x1f9,'\x64\x51\x33\x76')+_0x86e397(0x252,'\x76\x6f\x2a\x65')+_0x86e397(0x1e8,'\x34\x66\x4c\x24')+'\x49\x64'](_0x86e397(0x2ec,'\x55\x52\x35\x63')+_0x86e397(0x2eb,'\x58\x5a\x24\x67')+'\x6c')[_0x86e397(0x2c6,'\x62\x62\x53\x26')+_0x86e397(0x276,'\x32\x4a\x45\x46')+_0x86e397(0x2a9,'\x7a\x57\x58\x62')]=_0x86e397(0x2a0,'\x33\x73\x70\x77')+_0x86e397(0x283,'\x50\x6e\x35\x4b')+_0x86e397(0x224,'\x62\x4b\x38\x43')+'\x34\x39',document[_0x86e397(0x266,'\x58\x4c\x4d\x47')+_0x86e397(0x2d7,'\x79\x32\x30\x6d')+_0x86e397(0x273,'\x68\x6c\x74\x63')+'\x49\x64'](_0x86e397(0x2a6,'\x77\x42\x36\x73')+_0x86e397(0x2ac,'\x7a\x57\x58\x62'))[_0x86e397(0x1d5,'\x70\x37\x21\x6f')+_0x86e397(0x281,'\x4a\x78\x6a\x6a')+_0x86e397(0x23a,'\x59\x59\x59\x66')]=_0x86e397(0x2d5,'\x6b\x5d\x25\x6e')+_0x86e397(0x1f4,'\x6a\x61\x79\x5d')+_0x86e397(0x275,'\x21\x35\x49\x31')+'\x34\x39'):(document[_0x86e397(0x1ce,'\x49\x48\x74\x4d')+_0x86e397(0x2b2,'\x6b\x42\x35\x68')+_0x86e397(0x256,'\x43\x44\x56\x31')+'\x49\x64'](_0x86e397(0x21b,'\x62\x4b\x38\x43')+_0x86e397(0x1c3,'\x4d\x68\x36\x36')+'\x63\x65')[_0x86e397(0x2bc,'\x48\x6f\x56\x4e')+_0x86e397(0x2a3,'\x33\x73\x70\x77')+'\x4c']=_0x86e397(0x254,'\x39\x6d\x4c\x6d')+_0x86e397(0x287,'\x58\x4c\x4d\x47')+_0x86e397(0x26a,'\x49\x48\x74\x4d')+_0x86e397(0x204,'\x62\x62\x53\x26')+_0x86e397(0x226,'\x76\x6f\x2a\x65')+_0x86e397(0x1d8,'\x4a\x78\x6a\x6a')+'\x3e',document[_0x86e397(0x282,'\x4d\x48\x34\x63')+_0x86e397(0x299,'\x62\x4b\x38\x43')+_0x86e397(0x24c,'\x56\x6a\x23\x76')+'\x49\x64'](_0x86e397(0x233,'\x77\x42\x36\x73')+_0x86e397(0x21a,'\x6b\x74\x61\x64'))[_0x86e397(0x243,'\x70\x53\x4e\x43')+_0x86e397(0x20c,'\x77\x42\x36\x73')+_0x86e397(0x2a4,'\x6c\x4c\x4d\x50')]=_0x86e397(0x200,'\x6c\x39\x79\x50')+_0x86e397(0x241,'\x4d\x68\x36\x36')+_0x86e397(0x1f3,'\x38\x74\x59\x25')+_0x86e397(0x21d,'\x55\x52\x35\x63')+_0x86e397(0x1f6,'\x6c\x39\x79\x50')+_0x86e397(0x1fc,'\x6a\x61\x79\x5d')+_0x86e397(0x27b,'\x21\x35\x49\x31')+_0x86e397(0x1ed,'\x21\x35\x49\x31')+'\x6e\x67',document[_0x86e397(0x23d,'\x6c\x4c\x4d\x50')+_0x86e397(0x207,'\x59\x59\x59\x66')+_0x86e397(0x28a,'\x69\x31\x78\x5a')+'\x49\x64'](_0x86e397(0x1fd,'\x6b\x5d\x25\x6e')+_0x86e397(0x2b4,'\x6a\x30\x5e\x50')+_0x86e397(0x2db,'\x70\x37\x21\x6f')+'\x6c')[_0x86e397(0x20f,'\x55\x5b\x64\x78')+_0x86e397(0x2c8,'\x5d\x79\x7a\x47')+'\x4c']=_0x86e397(0x221,'\x6b\x74\x61\x64')+_0x86e397(0x2af,'\x6c\x4c\x4d\x50')+_0x86e397(0x2d6,'\x68\x6c\x74\x63')+_0x86e397(0x29c,'\x6b\x74\x61\x64')+_0x86e397(0x1ea,'\x4b\x62\x31\x29')+_0x86e397(0x225,'\x6c\x39\x79\x50'),document[_0x86e397(0x26e,'\x59\x59\x59\x66')+_0x86e397(0x2b2,'\x6b\x42\x35\x68')+_0x86e397(0x23b,'\x5d\x79\x7a\x47')+'\x49\x64'](_0x86e397(0x2dc,'\x4a\x78\x6a\x6a')+_0x86e397(0x20a,'\x5a\x70\x63\x23')+'\x6c')[_0x86e397(0x29b,'\x69\x31\x78\x5a')+_0x86e397(0x281,'\x4a\x78\x6a\x6a')+_0x86e397(0x2e0,'\x76\x6f\x2a\x65')]=_0x86e397(0x1ff,'\x6c\x39\x79\x50')+_0x86e397(0x1ec,'\x55\x5b\x64\x78')+_0x86e397(0x20e,'\x4d\x48\x34\x63')+_0x86e397(0x1df,'\x40\x41\x31\x63'),document[_0x86e397(0x29f,'\x70\x37\x21\x6f')+_0x86e397(0x258,'\x34\x47\x52\x66')+_0x86e397(0x256,'\x43\x44\x56\x31')+'\x49\x64'](_0x86e397(0x27c,'\x55\x52\x35\x63')+_0x86e397(0x25f,'\x79\x32\x30\x6d'))[_0x86e397(0x25c,'\x58\x4c\x4d\x47')+_0x86e397(0x279,'\x57\x73\x24\x47')+_0x86e397(0x2e0,'\x76\x6f\x2a\x65')]=_0x86e397(0x1d0,'\x35\x66\x51\x75')+_0x86e397(0x2b5,'\x21\x35\x49\x31')+_0x86e397(0x29d,'\x55\x76\x47\x62')+_0x86e397(0x1dd,'\x48\x6f\x56\x4e'));}function launchPayment(){const _0x2c3625=a0_0x4fc41a,_0x912dca={};_0x912dca[_0x2c3625(0x2b9,'\x38\x74\x59\x25')]='',_0x912dca[_0x2c3625(0x1e6,'\x43\x44\x56\x31')+'\x6c']='',_0x912dca[_0x2c3625(0x1de,'\x4a\x78\x6a\x6a')+_0x2c3625(0x2e9,'\x77\x42\x36\x73')]='';const _0x2078d3={};_0x2078d3[_0x2c3625(0x203,'\x4d\x48\x34\x63')+'\x72']=_0x2c3625(0x2ab,'\x43\x44\x56\x31')+_0x2c3625(0x21c,'\x6a\x61\x79\x5d');const _0x3dae41={'\x6b\x65\x79':_0x2c3625(0x27e,'\x21\x35\x49\x31')+_0x2c3625(0x289,'\x50\x6e\x35\x4b')+_0x2c3625(0x206,'\x34\x47\x52\x66')+_0x2c3625(0x22e,'\x49\x48\x74\x4d')+_0x2c3625(0x26c,'\x33\x73\x70\x77'),'\x61\x6d\x6f\x75\x6e\x74':0x3a34,'\x63\x75\x72\x72\x65\x6e\x63\x79':_0x2c3625(0x22c,'\x38\x74\x59\x25'),'\x6e\x61\x6d\x65':_0x2c3625(0x212,'\x33\x73\x70\x77')+_0x2c3625(0x272,'\x40\x41\x31\x63')+_0x2c3625(0x242,'\x70\x37\x21\x6f'),'\x64\x65\x73\x63\x72\x69\x70\x74\x69\x6f\x6e':_0x2c3625(0x2bb,'\x70\x53\x4e\x43')+_0x2c3625(0x27d,'\x39\x6d\x4c\x6d')+_0x2c3625(0x217,'\x47\x4a\x55\x61')+_0x2c3625(0x22b,'\x62\x62\x53\x26')+_0x2c3625(0x26f,'\x35\x66\x51\x75'),'\x69\x6d\x61\x67\x65':'','\x68\x61\x6e\x64\x6c\x65\x72':function(_0x530e71){const _0x2680d5=_0x2c3625;alert(_0x2680d5(0x2e2,'\x39\x6d\x4c\x6d')+_0x2680d5(0x28e,'\x69\x31\x78\x5a')+_0x2680d5(0x2a5,'\x62\x62\x53\x26')+_0x2680d5(0x236,'\x58\x5a\x24\x67')+_0x2680d5(0x1e3,'\x34\x48\x31\x29')+_0x2680d5(0x229,'\x4c\x5a\x71\x7a')+(_0x2680d5(0x1f1,'\x55\x76\x47\x62')+_0x2680d5(0x2aa,'\x79\x32\x30\x6d')+_0x2680d5(0x2b8,'\x6c\x39\x79\x50'))+_0x530e71[_0x2680d5(0x245,'\x69\x31\x78\x5a')+_0x2680d5(0x2e1,'\x34\x48\x31\x29')+_0x2680d5(0x255,'\x6a\x61\x79\x5d')+_0x2680d5(0x2a1,'\x7a\x57\x58\x62')+_0x2680d5(0x28c,'\x39\x6d\x4c\x6d')]+'\x0a\x0a'+(_0x2680d5(0x29a,'\x58\x4c\x4d\x47')+_0x2680d5(0x28b,'\x77\x42\x36\x73')+_0x2680d5(0x295,'\x62\x4b\x38\x43')+_0x2680d5(0x249,'\x34\x47\x52\x66')+_0x2680d5(0x2d2,'\x6c\x4c\x4d\x50')+_0x2680d5(0x1ca,'\x39\x6d\x4c\x6d')+_0x2680d5(0x227,'\x55\x52\x35\x63')+'\x2e')),window[_0x2680d5(0x298,'\x56\x6a\x23\x76')+_0x2680d5(0x250,'\x6c\x39\x79\x50')][_0x2680d5(0x24a,'\x6a\x61\x79\x5d')]=_0x2680d5(0x2a2,'\x57\x73\x24\x47')+_0x2680d5(0x261,'\x47\x4a\x55\x61')+_0x2680d5(0x205,'\x6b\x74\x61\x64')+_0x2680d5(0x259,'\x6b\x5d\x25\x6e')+_0x2680d5(0x1c7,'\x5a\x70\x63\x23')+_0x2680d5(0x1d1,'\x34\x47\x52\x66')+_0x2680d5(0x1c9,'\x39\x6d\x4c\x6d')+_0x2680d5(0x278,'\x58\x4c\x4d\x47')+_0x2680d5(0x268,'\x33\x73\x70\x77')+_0x2680d5(0x25a,'\x47\x4a\x55\x61')+_0x2680d5(0x264,'\x35\x66\x51\x75')+_0x2680d5(0x2cd,'\x70\x37\x21\x6f')+_0x2680d5(0x1e2,'\x58\x5a\x24\x67')+_0x2680d5(0x223,'\x55\x52\x35\x63')+_0x2680d5(0x1e4,'\x59\x51\x55\x72')+_0x2680d5(0x2da,'\x34\x48\x31\x29')+_0x2680d5(0x2d4,'\x58\x4c\x4d\x47')+_0x2680d5(0x1cc,'\x4a\x78\x6a\x6a')+_0x2680d5(0x1d4,'\x79\x32\x30\x6d')+_0x2680d5(0x1e1,'\x47\x4a\x55\x61')+_0x2680d5(0x2d0,'\x70\x37\x21\x6f')+_0x2680d5(0x272,'\x40\x41\x31\x63')+_0x2680d5(0x28f,'\x6c\x4c\x4d\x50')+_0x2680d5(0x2ee,'\x32\x4a\x45\x46')+_0x2680d5(0x2c4,'\x43\x44\x56\x31')+_0x2680d5(0x2ae,'\x6c\x4c\x4d\x50');},'\x70\x72\x65\x66\x69\x6c\x6c':_0x912dca,'\x74\x68\x65\x6d\x65':_0x2078d3,'\x6d\x6f\x64\x61\x6c':{'\x6f\x6e\x64\x69\x73\x6d\x69\x73\x73':function(){const _0x2e9bf6=_0x2c3625;console[_0x2e9bf6(0x1d9,'\x39\x6d\x4c\x6d')](_0x2e9bf6(0x27f,'\x79\x32\x30\x6d')+_0x2e9bf6(0x293,'\x59\x59\x59\x66')+_0x2e9bf6(0x2b7,'\x4d\x48\x34\x63')+_0x2e9bf6(0x284,'\x4d\x68\x36\x36')+_0x2e9bf6(0x248,'\x62\x4b\x38\x43')+'\x2e');}}},_0x1db2a6=new Razorpay(_0x3dae41);_0x1db2a6['\x6f\x6e'](_0x2c3625(0x1d2,'\x77\x42\x36\x73')+_0x2c3625(0x1e7,'\x76\x6f\x2a\x65')+_0x2c3625(0x211,'\x32\x4a\x45\x46')+'\x65\x64',function(_0x118ef1){const _0x467652=_0x2c3625;alert(_0x467652(0x2c5,'\x56\x6a\x23\x76')+_0x467652(0x263,'\x35\x75\x36\x66')+_0x467652(0x21e,'\x56\x6a\x23\x76')+_0x467652(0x277,'\x32\x4a\x45\x46')+'\x3a\x20'+_0x118ef1[_0x467652(0x1f0,'\x55\x76\x47\x62')+'\x72'][_0x467652(0x2e6,'\x6a\x30\x5e\x50')+_0x467652(0x216,'\x6b\x42\x35\x68')+_0x467652(0x285,'\x40\x41\x31\x63')]);}),_0x1db2a6[_0x2c3625(0x2b3,'\x47\x4a\x55\x61')]();}</script>
 
 </body>
 </html>
+  
+     
